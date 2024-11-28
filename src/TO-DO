@@ -1,0 +1,23 @@
+layout better
+
+allow you to paste into template message
+
+security/GDPR Qs
+
+"send to mobile" function
+    - use QR codes:
+        - stringify data
+        - convert to QR code
+        - lib like this to scan: https://www.npmjs.com/package/html5-qrcode
+        - potentially needs to be multiple QR codes but that should be fine?? - encode into the QR code whether or not you need to do multiple so both web and mobile can behave accordingly
+    - tel: call links too
+
+make it all more obvious and clear
+
+script function
+
+feedback function????
+
+add signal -
+    probably need "generate/copy msg button" and then share link separate, like: sgnl://signal.me/#p/+447903700751 
+    maybe not? maybe no way to make it secure enough really
