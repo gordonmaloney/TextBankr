@@ -4,6 +4,7 @@ import Grid from "./Grid";
 import GenerateMobileData from "./GenerateMobileData";
 import Scanning from "./Scanning";
 import InputFields from "./InputFields";
+import Header from "./Header";
 
 const TextBankr = () => {
 	const [rowData, setRowData] = useState([]);
@@ -54,41 +55,48 @@ const TextBankr = () => {
 		};
 	}, []);
 
-
 	return (
-		<div style={{ padding: "20px" }}>
-			<h1>TextBankr</h1>
+		<div>
+			<Header />
+			<div style={{ padding: "20px" }}>
+				<p style={{ textAlign: "center" }}>
+					<em>
+						You are viewing a work in progress - please be patient 🙏
+						<br />
+						Any comments, email gordonmaloney @ gmail . com
+					</em>
+				</p>
 
+				<InputFields
+					noAnswerMessage={noAnswerMessage}
+					setNoAnswerMessage={setNoAnswerMessage}
+					followUpMessage={followUpMessage}
+					setFollowUpMessage={setFollowUpMessage}
+				/>
 
-			<InputFields
-				noAnswerMessage={noAnswerMessage}
-				setNoAnswerMessage={setNoAnswerMessage}
-				followUpMessage={followUpMessage}
-				setFollowUpMessage={setFollowUpMessage}
-			/>
+				<Grid rowData={rowData} />
 
-			<Grid rowData={rowData} />
+				<Scanning
+					isMobile={isMobile}
+					setRowData={setRowData}
+					setNoAnswerMessage={setNoAnswerMessage}
+					setFollowUpMessage={setFollowUpMessage}
+				/>
 
-			<GenerateMobileData
-				rowData={rowData}
-				isMobile={isMobile}
-				followUpMessage={followUpMessage}
-				noAnswerMessage={noAnswerMessage}
-			/>
+				<GeneratedLinks
+					rowData={rowData}
+					isMobile={isMobile}
+					followUpMessage={followUpMessage}
+					noAnswerMessage={noAnswerMessage}
+				/>
 
-			<GeneratedLinks
-				rowData={rowData}
-				isMobile={isMobile}
-				followUpMessage={followUpMessage}
-				noAnswerMessage={noAnswerMessage}
-			/>
-
-			<Scanning
-				isMobile={isMobile}
-				setRowData={setRowData}
-				setNoAnswerMessage={setNoAnswerMessage}
-				setFollowUpMessage={setFollowUpMessage}
-			/>
+				<GenerateMobileData
+					rowData={rowData}
+					isMobile={isMobile}
+					followUpMessage={followUpMessage}
+					noAnswerMessage={noAnswerMessage}
+				/>
+			</div>
 		</div>
 	);
 };

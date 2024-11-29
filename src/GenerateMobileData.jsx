@@ -9,6 +9,9 @@ const GenerateMobileData = ({
 }) => {
 	const [qrCodes, setQrCodes] = useState([]);
 	const [currentQrIndex, setCurrentQrIndex] = useState(0); // Tracks the displayed QR code index
+	const [isModalOpen, setIsModalOpen] = useState(false); // Tracks if modal is open
+
+	const QRcodeWith = 800;
 
 	const generateMobileData = async () => {
 		const maxChunkSize = 1000; // Maximum size per QR code in characters
@@ -51,6 +54,7 @@ const GenerateMobileData = ({
 					JSON.stringify(templateChunks[i]),
 					{
 						errorCorrectionLevel: "H",
+						width: QRcodeWith, // Set uniform width
 					}
 				);
 				qrChunks.push(qrCodeUrl);
@@ -85,6 +89,7 @@ const GenerateMobileData = ({
 					JSON.stringify(contactsChunks[i]),
 					{
 						errorCorrectionLevel: "H",
+						width: QRcodeWith, // Set uniform width
 					}
 				);
 				qrChunks.push(qrCodeUrl);
@@ -98,6 +103,7 @@ const GenerateMobileData = ({
 		}
 
 		setQrCodes(qrChunks); // Save QR code URLs
+		setIsModalOpen(true); // Open the modal
 	};
 
 	useEffect(() => {
@@ -113,35 +119,74 @@ const GenerateMobileData = ({
 	return (
 		<div>
 			{!isMobile && (
-				<button
-					onClick={generateMobileData}
-					style={{
-						padding: "10px 20px",
-						backgroundColor: "#007bff",
-						color: "#fff",
-						border: "none",
-						borderRadius: "5px",
-						cursor: "pointer",
-						marginBottom: "20px",
-					}}
-				>
-					Generate Mobile Data
-				</button>
+				<>
+					<button
+						onClick={generateMobileData}
+						style={{
+							padding: "10px 20px",
+							backgroundColor: "#007bff",
+							color: "#fff",
+							border: "none",
+							borderRadius: "5px",
+							cursor: "pointer",
+							marginBottom: "20px",
+						}}
+					>
+						Generate Mobile Data
+					</button>
+				</>
 			)}
 
-			{/* Display QR Codes */}
-			{qrCodes.length > 0 && (
-				<div>
-					<h2>Scan this QR Code</h2>
-					<div key={currentQrIndex} style={{ marginBottom: "10px" }}>
-						<h3>
-							QR Code {currentQrIndex + 1} of {qrCodes.length}
-						</h3>
-						<img
-							src={qrCodes[currentQrIndex]}
-							alt={`QR Code ${currentQrIndex + 1}`}
-							style={{ maxWidth: "100%", height: "auto" }}
-						/>
+			{/* Modal for QR Codes */}
+			{isModalOpen && (
+				<div
+					style={{
+						position: "fixed",
+						top: 0,
+						left: 0,
+						width: "100vw",
+						height: "100vh",
+						backgroundColor: "rgba(0, 0, 0, 0.8)",
+						display: "flex",
+						justifyContent: "center",
+						alignItems: "center",
+						zIndex: 1000,
+					}}
+				>
+					<div
+						style={{
+							backgroundColor: "#fff",
+							padding: "20px",
+							borderRadius: "10px",
+							textAlign: "center",
+							width: "80%",
+							maxWidth: "500px",
+						}}
+					>
+						<h2>Scan these QR Codes</h2>
+						<div key={currentQrIndex} style={{ marginBottom: "10px" }}>
+							<h3>
+								QR Code {currentQrIndex + 1} of {qrCodes.length}
+							</h3>
+							<img
+								src={qrCodes[currentQrIndex]}
+								alt={`QR Code ${currentQrIndex + 1}`}
+								style={{ maxWidth: "100%", height: "auto" }}
+							/>
+						</div>
+						<button
+							onClick={() => setIsModalOpen(false)}
+							style={{
+								padding: "10px 20px",
+								backgroundColor: "#ff4d4d",
+								color: "#fff",
+								border: "none",
+								borderRadius: "5px",
+								cursor: "pointer",
+							}}
+						>
+							Close
+						</button>
 					</div>
 				</div>
 			)}
