@@ -68,8 +68,8 @@ const generateSMSLink = (name, number, message) => {
 };
 
 const generateMobileData = async () => {
-	const maxChunkSize = 600; // Maximum allowed size per QR code in characters
-	const qrChunks = []; // Array to store QR code URLs
+	const maxChunkSize = 1000; // Maximum size per QR code in characters
+	const qrChunks = []; // Store QR code URLs
 
 	// Prepare data
 	const templateMessages = {
@@ -84,17 +84,20 @@ const generateMobileData = async () => {
 	// Step 1: Split Template Messages
 	const templateChunks = [];
 	for (const [key, message] of Object.entries(templateMessages)) {
-		let startIndex = 0;
-		while (startIndex < message.length) {
+		let partIndex = 0;
+		while (partIndex * maxChunkSize < message.length) {
 			const chunk = {
 				type: "template",
-				key,
-				partIndex: templateChunks.length + 1,
+				key, // Identifies whether this is "noAnswer" or "followUp"
+				partIndex: partIndex + 1,
 				totalParts: Math.ceil(message.length / maxChunkSize),
-				message: message.slice(startIndex, startIndex + maxChunkSize),
+				message: message.slice(
+					partIndex * maxChunkSize,
+					(partIndex + 1) * maxChunkSize
+				),
 			};
 			templateChunks.push(chunk);
-			startIndex += maxChunkSize;
+			partIndex++;
 		}
 	}
 
@@ -119,7 +122,7 @@ const generateMobileData = async () => {
 
 	// Step 2: Split Contacts
 	const contactsChunks = [];
-	const estimatedContactSize = JSON.stringify(contacts[0]).length + 50; // Include some padding for metadata
+	const estimatedContactSize = JSON.stringify(contacts[0]).length + 50;
 	const contactsPerChunk = Math.floor(maxChunkSize / estimatedContactSize);
 
 	for (let i = 0; i < contacts.length; i += contactsPerChunk) {
@@ -151,51 +154,97 @@ const generateMobileData = async () => {
 		}
 	}
 
-	setQrCodes(qrChunks); // Save all QR code URLs
+	setQrCodes(qrChunks); // Save QR code URLs
 };
+
 
 const startScanning = () => {
 	setIsScanning(true);
-	const scannedChunks = []; // To store scanned chunks
+	const scannedChunks = { templates: [], contacts: [] }; // Separate templates and contacts
+
 	const scanner = new Html5QrcodeScanner("reader", {
-		fps: 20,
-		qrbox: 800, // Increase QR box size for easier scanning
+		fps: 25,
+		qrbox: 800,
 	});
 
 	const config = {
 		experimentalFeatures: {
 			useBarCodeDetectorIfSupported: true,
 		},
-		facingMode: "environment", // Use back camera
+		facingMode: "environment",
 	};
 
 	scanner.render(
 		(decodedText) => {
 			try {
 				const chunk = JSON.parse(decodedText);
-				const { chunkIndex, totalChunks } = chunk;
 
-				if (scannedChunks.some((c) => c.chunkIndex === chunkIndex)) {
-					alert(`Chunk ${chunkIndex} is already scanned!`);
-					return;
+				if (chunk.type === "template") {
+					// Handle template message chunks
+					if (
+						!scannedChunks.templates.some(
+							(c) => c.partIndex === chunk.partIndex && c.key === chunk.key
+						)
+					) {
+						scannedChunks.templates.push(chunk);
+					}
+				} else if (chunk.type === "contacts") {
+					// Handle contact chunks
+					if (
+						!scannedChunks.contacts.some(
+							(c) => c.chunkIndex === chunk.chunkIndex
+						)
+					) {
+						scannedChunks.contacts.push(chunk);
+					}
 				}
 
-				scannedChunks.push(chunk);
-				alert(`Chunk ${chunkIndex} of ${totalChunks} scanned.`);
+				// Check if scanning is complete
+				const templatesComplete =
+					scannedChunks.templates.length &&
+					scannedChunks.templates.filter((chunk) => chunk.key === "noAnswer")
+						.length ===
+						scannedChunks.templates.find((chunk) => chunk.key === "noAnswer")
+							?.totalParts &&
+					scannedChunks.templates.filter((chunk) => chunk.key === "followUp")
+						.length ===
+						scannedChunks.templates.find((chunk) => chunk.key === "followUp")
+							?.totalParts;
 
-				if (scannedChunks.length === totalChunks) {
+				const contactsComplete =
+					scannedChunks.contacts.length &&
+					scannedChunks.contacts.length ===
+						scannedChunks.contacts[0]?.totalChunks;
+
+				if (templatesComplete && contactsComplete) {
 					scanner.clear();
 					setIsScanning(false);
 
-					const combinedContacts = scannedChunks
+					// Reconstruct Template Messages
+					const reconstructedTemplates = scannedChunks.templates
+						.sort((a, b) => a.partIndex - b.partIndex)
+						.reduce(
+							(acc, chunk) => ({
+								...acc,
+								[chunk.key]: (acc[chunk.key] || "") + chunk.message,
+							}),
+							{}
+						);
+
+					// Reconstruct Contacts
+					const reconstructedContacts = scannedChunks.contacts
 						.sort((a, b) => a.chunkIndex - b.chunkIndex)
 						.flatMap((chunk) => chunk.contacts);
 
-					setRowData(combinedContacts);
-					setNoAnswerMessage(scannedChunks[0].templateMessages?.noAnswer || "");
-					setFollowUpMessage(scannedChunks[0].templateMessages?.followUp || "");
+					setRowData(reconstructedContacts);
+					setNoAnswerMessage(reconstructedTemplates.noAnswer || "");
+					setFollowUpMessage(reconstructedTemplates.followUp || "");
 
 					alert("All QR codes scanned and data reconstructed!");
+				} else {
+					alert(
+						`Scanned ${scannedChunks.templates.length} template parts and ${scannedChunks.contacts.length} contact chunks.`
+					);
 				}
 			} catch (error) {
 				alert("Invalid QR Code data. Please try again.");
@@ -207,6 +256,8 @@ const startScanning = () => {
 		config
 	);
 };
+
+
 
 const columnDefs = [
 	{ headerName: "Name", field: "name", editable: true },
