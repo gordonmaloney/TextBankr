@@ -6,7 +6,24 @@ security/GDPR Qs
 
 split up component
 
-"send to mobile" function
+//multiline templates
+
+//fix copy paste in templates
+
+//conditionally show buttons on desktop/mobile
+
+"host textbank" function
+
+"flicking" of QR codes so user doesn't have to scroll
+
+drag and drop data - maybe not poss????
+
+make sure QR code splitting can handle long nessages and long contacts
+
+???other things from huawei phone
+
+
+//"send to mobile" function
     - use QR codes:
         - stringify data
         - convert to QR code
