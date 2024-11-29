@@ -4,6 +4,7 @@ import TextBankr from "./TextBankr";
 const App = () => {
 	return (
 		<div>
+      
 			<TextBankr />
 		</div>
 	);

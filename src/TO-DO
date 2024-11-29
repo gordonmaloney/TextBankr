@@ -1,28 +1,8 @@
-layout better
-
-allow you to paste into template message
-
-security/GDPR Qs
-
-split up component
-
 //multiline templates
-
 //fix copy paste in templates
-
 //conditionally show buttons on desktop/mobile
-
-"host textbank" function
-
-"flicking" of QR codes so user doesn't have to scroll
-
-drag and drop data - maybe not poss????
-
-DONE? test more - make sure QR code splitting can handle long nessages and long contacts
-
-???other things from huawei phone
-
-
+// "flicking" of QR codes so user doesn't have to scroll
+// test more - make sure QR code splitting can handle long nessages and long contacts
 //"send to mobile" function
     - use QR codes:
         - stringify data
@@ -30,6 +10,21 @@ DONE? test more - make sure QR code splitting can handle long nessages and long 
         - lib like this to scan: https://www.npmjs.com/package/html5-qrcode
         - potentially needs to be multiple QR codes but that should be fine?? - encode into the QR code whether or not you need to do multiple so both web and mobile can behave accordingly
     - tel: call links too
+//split up component
+
+
+layout better
+
+allow you to paste into template message
+
+security/GDPR Qs
+
+"host textbank" function
+
+drag and drop data - maybe not poss????
+
+
+???other things from huawei phone
 
 make it all more obvious and clear
 
