@@ -2,8 +2,9 @@ import React from "react";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
+import { Button } from "@mui/material";
 
-const DataGrid = ({ rowData }) => {
+const DataGrid = ({ rowData, clearAllData }) => {
 	const columnDefs = [
 		{ headerName: "Name", field: "name", editable: true },
 		{ headerName: "Number", field: "number", editable: true },
@@ -30,6 +31,15 @@ const DataGrid = ({ rowData }) => {
       Paste your data here using ctrl/cmnd + v.
     </div>`} // Custom no-rows message
 			/>
+
+			<Button
+				variant="contained"
+				onClick={clearAllData}
+				size="small"
+				style={{ marginTop: "5px", float: "right" }}
+			>
+				Clear data
+			</Button>
 		</div>
 	);
 };

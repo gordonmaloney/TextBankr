@@ -24,10 +24,10 @@ const InputFields = ({
 				onChange={(e) => setNoAnswerMessage(e.target.value)}
 				placeholder="Type your 'No Answer' message here"
 			/>
-			<br />
-			<br />
+
 			{!secondField ? (
 				<Button
+					style={{ marginTop: "5px", float: "right" }}
 					variant="contained"
 					size="small"
 					onClick={() => setSecondField(true)}
@@ -42,6 +42,7 @@ const InputFields = ({
 					placeholder="Type your 'Follow Up' message here"
 					multiline
 					fullWidth
+					style={{ marginTop: "14px" }}
 					rows={4}
 				/>
 			)}

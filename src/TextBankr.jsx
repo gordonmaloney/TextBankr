@@ -14,6 +14,11 @@ const TextBankr = () => {
 	const [noAnswerMessage, setNoAnswerMessage] = useState("");
 	const [followUpMessage, setFollowUpMessage] = useState("");
 
+
+	const clearAllData = () => {
+		setRowData([]);
+	};
+
 	const [isMobile, setIsMobile] = useState(false);
 
 	// Detect mobile devices
@@ -36,15 +41,58 @@ const TextBankr = () => {
 
 		event.preventDefault();
 		const clipboardData = event.clipboardData.getData("text/plain");
-		const rows = clipboardData.split("\n").filter((row) => row.trim() !== "");
-		const parsedData = rows.map((row) => row.split("\t"));
 
-		const formattedData = parsedData.map((cells) => ({
-			name: cells[0] || "",
-			number: cells[1] || "",
+		// Split the clipboard data into rows
+		const rows = clipboardData.split("\n").filter((row) => row.trim() !== "");
+
+		const parsedData = [];
+		let buffer = null;
+
+		rows.forEach((row) => {
+			// Split row into cells and clean up each cell
+			const cells = row
+				.split("\t")
+				.map((cell) => cell.replace(/["]/g, "").trim()); // Remove quotes and trim
+
+			if (cells.length === 2 && /^\d/.test(cells[1])) {
+				// If row has two valid cells and the second one starts with a digit
+				if (buffer) {
+					// If there's a buffer, finalize it before adding this valid row
+					parsedData.push(buffer);
+					buffer = null;
+				}
+				parsedData.push({ name: cells[0], number: cells[1] });
+			} else if (cells.length === 1) {
+				// If row has one cell, assume it's part of a split entry
+				if (buffer) {
+					// Add this line to the existing buffer
+					buffer.number += ` ${cells[0]}`;
+				} else {
+					// Start a buffer for the split entry
+					buffer = { name: cells[0], number: "" };
+				}
+			} else if (cells.length === 2) {
+				// If row has two cells but the second is not a valid number
+				if (buffer) {
+					buffer.number += ` ${cells[0]}`; // Treat as continuation of previous
+				} else {
+					buffer = { name: cells[0], number: cells[1] }; // Start buffer
+				}
+			}
+		});
+
+		// Add any remaining buffer as a valid entry
+		if (buffer) {
+			parsedData.push(buffer);
+		}
+
+		// Clean and format the data
+		const formattedData = parsedData.map((entry) => ({
+			name: entry.name || "",
+			number: entry.number ? entry.number.replace(/[^0-9+]/g, "").trim() : "",
 		}));
 
-		setRowData(formattedData);
+		setRowData(formattedData); // Update the table data
 	};
 
 	useEffect(() => {
@@ -70,9 +118,16 @@ const TextBankr = () => {
 					</em>
 				</p>
 
+				<Scanning
+					isMobile={isMobile}
+					setRowData={setRowData}
+					setNoAnswerMessage={setNoAnswerMessage}
+					setFollowUpMessage={setFollowUpMessage}
+				/>
+
 				<Box sx={{ flexGrow: 1 }}>
 					<Grid container spacing={2}>
-						<Grid size={6}>
+						<Grid size={{ xs: 12, sm: 6 }}>
 							<InputFields
 								noAnswerMessage={noAnswerMessage}
 								setNoAnswerMessage={setNoAnswerMessage}
@@ -80,7 +135,13 @@ const TextBankr = () => {
 								setFollowUpMessage={setFollowUpMessage}
 							/>
 
-							<Grid container spacing={2} justifyContent={"space-between"}>
+							<br />
+							<Grid
+								container
+								spacing={2}
+								justifyContent={"space-between"}
+								style={{ marginTop: "14px" }}
+							>
 								<Grid item size={6}>
 									<Button
 										variant="contained"
@@ -105,18 +166,11 @@ const TextBankr = () => {
 							</Grid>
 						</Grid>
 
-						<Grid size={6}>
-							<DataGrid rowData={rowData} />
+						<Grid size={{ xs: 12, sm: 6 }}>
+							<DataGrid rowData={rowData} clearAllData={clearAllData} />
 						</Grid>
 					</Grid>
 				</Box>
-
-				<Scanning
-					isMobile={isMobile}
-					setRowData={setRowData}
-					setNoAnswerMessage={setNoAnswerMessage}
-					setFollowUpMessage={setFollowUpMessage}
-				/>
 
 				<GeneratedLinks
 					rowData={rowData}

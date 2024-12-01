@@ -17,6 +17,7 @@ const GenerateMobileData = ({
 	const generateMobileData = async () => {
 		const maxChunkSize = 1000; // Maximum size per QR code in characters
 		const qrChunks = []; // Store QR code URLs
+		const dataChunks = []; // Combined list of chunks
 
 		// Prepare data
 		const templateMessages = {
@@ -28,77 +29,55 @@ const GenerateMobileData = ({
 			number: row.number,
 		}));
 
-		// Step 1: Split Template Messages
-		const templateChunks = [];
+		// Step 1: Add template messages to chunks
 		for (const [key, message] of Object.entries(templateMessages)) {
 			let partIndex = 0;
 			while (partIndex * maxChunkSize < message.length) {
 				const chunk = {
-					type: "template",
 					key, // Identifies whether this is "noAnswer" or "followUp"
 					partIndex: partIndex + 1,
-					totalParts: Math.ceil(message.length / maxChunkSize),
-					message: message.slice(
+					data: message.slice(
 						partIndex * maxChunkSize,
 						(partIndex + 1) * maxChunkSize
 					),
 				};
-				templateChunks.push(chunk);
+				dataChunks.push(chunk);
 				partIndex++;
 			}
 		}
 
-		// Generate QR codes for template message chunks
-		for (let i = 0; i < templateChunks.length; i++) {
-			try {
-				const qrCodeUrl = await QRCode.toDataURL(
-					JSON.stringify(templateChunks[i]),
-					{
-						errorCorrectionLevel: "H",
-						width: QRcodeWith, // Set uniform width
-					}
-				);
-				qrChunks.push(qrCodeUrl);
-			} catch (error) {
-				console.error(
-					`Error generating QR code for template chunk ${i + 1}:`,
-					error
-				);
-				return;
-			}
-		}
-
-		// Step 2: Split Contacts
-		const contactsChunks = [];
+		// Step 2: Add contacts to chunks
 		const estimatedContactSize = JSON.stringify(contacts[0]).length + 50;
 		const contactsPerChunk = Math.floor(maxChunkSize / estimatedContactSize);
 
 		for (let i = 0; i < contacts.length; i += contactsPerChunk) {
 			const chunk = {
-				type: "contacts",
-				chunkIndex: contactsChunks.length + 1,
-				totalChunks: Math.ceil(contacts.length / contactsPerChunk),
-				contacts: contacts.slice(i, i + contactsPerChunk),
+				partIndex: dataChunks.length + 1,
+				data: contacts.slice(i, i + contactsPerChunk),
 			};
-			contactsChunks.push(chunk);
+			dataChunks.push(chunk);
 		}
 
-		// Generate QR codes for contact chunks
-		for (let i = 0; i < contactsChunks.length; i++) {
+		// Step 3: Add totalParts to all chunks
+		const totalParts = dataChunks.length;
+		dataChunks.forEach((chunk, index) => {
+			chunk.totalParts = totalParts; // Add total chunk count to each chunk
+			chunk.partIndex = index + 1; // Ensure correct partIndex
+		});
+
+		// Step 4: Generate QR codes
+		for (let i = 0; i < dataChunks.length; i++) {
 			try {
 				const qrCodeUrl = await QRCode.toDataURL(
-					JSON.stringify(contactsChunks[i]),
+					JSON.stringify(dataChunks[i]),
 					{
 						errorCorrectionLevel: "H",
-						width: QRcodeWith, // Set uniform width
+						width: 600, // Set uniform width
 					}
 				);
 				qrChunks.push(qrCodeUrl);
 			} catch (error) {
-				console.error(
-					`Error generating QR code for contact chunk ${i + 1}:`,
-					error
-				);
+				console.error(`Error generating QR code for chunk ${i + 1}:`, error);
 				return;
 			}
 		}
@@ -106,6 +85,7 @@ const GenerateMobileData = ({
 		setQrCodes(qrChunks); // Save QR code URLs
 		setIsModalOpen(true); // Open the modal
 	};
+
 
 	useEffect(() => {
 		if (qrCodes.length > 0) {
@@ -125,7 +105,6 @@ const GenerateMobileData = ({
 						variant="contained"
 						onClick={generateMobileData}
 						disabled={rowData.length == 0}
-						
 					>
 						Generate Mobile Data
 					</Button>
