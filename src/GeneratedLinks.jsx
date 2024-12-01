@@ -1,4 +1,6 @@
 import React from "react";
+import { Button } from "@mui/material";
+import Grid from "@mui/material/Grid2";
 
 const GeneratedLinks = ({
 	rowData,
@@ -22,72 +24,120 @@ const GeneratedLinks = ({
 
 	const formatForTel = (number) => `+44${number}`;
 
-
-
 	if (rowData.length > 0) {
 		return (
-			<div>
+			<div id="generatedLinks">
 				<h2>Generated Links</h2>
-				<ul>
+
+				<Button
+					variant="contained"
+					size="small"
+					disabled={rowData.length == 0}
+					onClick={() =>
+						document
+							.getElementById("header")
+							.scrollIntoView({ behavior: "smooth" })
+					}
+				>
+					Edit template messages and data
+				</Button>
+
+				<Grid container spacing={4}>
 					{rowData.map((row, index) => (
-						<li key={index}>
-							<p>
-								<strong>{row.name}</strong> ({row.number})
-							</p>
-							<div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+						<Grid size={12} key={index}>
+							<Grid container spacing={5}>
+								<Grid size={3}>
+									<strong>{row.name}</strong>
+									<br />({row.number})
+								</Grid>
+
 								{isMobile && (
-									<a
-										href={`tel:${formatForTel(row.number)}`}
-										target="_blank"
-										rel="noopener noreferrer"
-									>
-										Call
-									</a>
+									<Grid size={3}>
+										<center>
+											<a
+												href={`tel:${formatForTel(row.number)}`}
+												target="_blank"
+												rel="noopener noreferrer"
+											>
+												Call
+											</a>
+										</center>
+									</Grid>
 								)}
 
-								<a
-									href={generateWhatsAppLink(
-										row.name,
-										row.number,
-										noAnswerMessage
-									)}
-									target="_blank"
-									rel="noopener noreferrer"
-								>
-									WhatsApp - No Answer
-								</a>
-								<a
-									href={generateSMSLink(row.name, row.number, noAnswerMessage)}
-									target="_blank"
-									rel="noopener noreferrer"
-								>
-									SMS - No Answer
-								</a>
+								<Grid size={3}>
+									No answer message
+									<div
+										style={{
+											width: "100%",
+											display: "flex",
+											justifyContent: "space-around",
+										}}
+									>
+										<a
+											href={generateWhatsAppLink(
+												row.name,
+												row.number,
+												noAnswerMessage
+											)}
+											target="_blank"
+											rel="noopener noreferrer"
+										>
+											WhatsApp
+										</a>
 
-								{followUpMessage && <>
-									<a
-										href={generateWhatsAppLink(
-											row.name,
-											row.number,
-											followUpMessage
-										)}
-										target="_blank"
-										rel="noopener noreferrer"
+										<a
+											href={generateSMSLink(
+												row.name,
+												row.number,
+												noAnswerMessage
+											)}
+											target="_blank"
+											rel="noopener noreferrer"
+										>
+											SMS
+										</a>
+									</div>
+								</Grid>
+
+								<Grid size={3}>
+									Follow up message
+									<div
+										style={{
+											width: "100%",
+											display: "flex",
+											justifyContent: "space-around",
+										}}
 									>
-										WhatsApp - Follow Up
-									</a>
-									<a
-										href={generateSMSLink(row.name, row.number, followUpMessage)}
-										target="_blank"
-										rel="noopener noreferrer"
-									>
-										SMS - Follow Up
-									</a>
-								</>}
-							</div>
-						</li>
+										<a
+											href={generateWhatsAppLink(
+												row.name,
+												row.number,
+												followUpMessage
+											)}
+											target="_blank"
+											rel="noopener noreferrer"
+										>
+											WhatsApp
+										</a>
+
+										<a
+											href={generateSMSLink(
+												row.name,
+												row.number,
+												followUpMessage
+											)}
+											target="_blank"
+											rel="noopener noreferrer"
+										>
+											SMS
+										</a>
+									</div>
+								</Grid>
+							</Grid>
+						</Grid>
 					))}
-				</ul>
+				</Grid>
 			</div>
 		);
 	} else {

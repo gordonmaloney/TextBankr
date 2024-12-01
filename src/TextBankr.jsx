@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import GeneratedLinks from "./GeneratedLinks";
-import Grid from "./Grid";
+import { Box, Button } from "@mui/material";
+import Grid from "@mui/material/Grid2";
+
+import DataGrid from "./DataGrid";
 import GenerateMobileData from "./GenerateMobileData";
 import Scanning from "./Scanning";
 import InputFields from "./InputFields";
@@ -67,14 +70,46 @@ const TextBankr = () => {
 					</em>
 				</p>
 
-				<InputFields
-					noAnswerMessage={noAnswerMessage}
-					setNoAnswerMessage={setNoAnswerMessage}
-					followUpMessage={followUpMessage}
-					setFollowUpMessage={setFollowUpMessage}
-				/>
+				<Box sx={{ flexGrow: 1 }}>
+					<Grid container spacing={2}>
+						<Grid size={6}>
+							<InputFields
+								noAnswerMessage={noAnswerMessage}
+								setNoAnswerMessage={setNoAnswerMessage}
+								followUpMessage={followUpMessage}
+								setFollowUpMessage={setFollowUpMessage}
+							/>
 
-				<Grid rowData={rowData} />
+							<Grid container spacing={2} justifyContent={"space-between"}>
+								<Grid item size={6}>
+									<Button
+										variant="contained"
+										disabled={rowData.length == 0}
+										onClick={() =>
+											document
+												.getElementById("generatedLinks")
+												.scrollIntoView({ behavior: "smooth" })
+										}
+									>
+										Go to links
+									</Button>
+								</Grid>
+								<Grid item size={6}>
+									<GenerateMobileData
+										rowData={rowData}
+										isMobile={isMobile}
+										followUpMessage={followUpMessage}
+										noAnswerMessage={noAnswerMessage}
+									/>
+								</Grid>
+							</Grid>
+						</Grid>
+
+						<Grid size={6}>
+							<DataGrid rowData={rowData} />
+						</Grid>
+					</Grid>
+				</Box>
 
 				<Scanning
 					isMobile={isMobile}
@@ -84,13 +119,6 @@ const TextBankr = () => {
 				/>
 
 				<GeneratedLinks
-					rowData={rowData}
-					isMobile={isMobile}
-					followUpMessage={followUpMessage}
-					noAnswerMessage={noAnswerMessage}
-				/>
-
-				<GenerateMobileData
 					rowData={rowData}
 					isMobile={isMobile}
 					followUpMessage={followUpMessage}

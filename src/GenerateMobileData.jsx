@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import QRCode from "qrcode";
+import { Button } from "@mui/material";
 
 const GenerateMobileData = ({
 	rowData,
@@ -119,22 +120,16 @@ const GenerateMobileData = ({
 	return (
 		<div>
 			{!isMobile && (
-				<>
-					<button
+				<span style={{ float: "right" }}>
+					<Button
+						variant="contained"
 						onClick={generateMobileData}
-						style={{
-							padding: "10px 20px",
-							backgroundColor: "#007bff",
-							color: "#fff",
-							border: "none",
-							borderRadius: "5px",
-							cursor: "pointer",
-							marginBottom: "20px",
-						}}
+						disabled={rowData.length == 0}
+						
 					>
 						Generate Mobile Data
-					</button>
-				</>
+					</Button>
+				</span>
 			)}
 
 			{/* Modal for QR Codes */}
@@ -174,19 +169,15 @@ const GenerateMobileData = ({
 								style={{ maxWidth: "100%", height: "auto" }}
 							/>
 						</div>
-						<button
+						<Button
+							variant="contained"
 							onClick={() => setIsModalOpen(false)}
 							style={{
-								padding: "10px 20px",
 								backgroundColor: "#ff4d4d",
-								color: "#fff",
-								border: "none",
-								borderRadius: "5px",
-								cursor: "pointer",
 							}}
 						>
 							Close
-						</button>
+						</Button>
 					</div>
 				</div>
 			)}

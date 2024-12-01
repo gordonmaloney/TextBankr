@@ -3,7 +3,7 @@ import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 
-const Grid = ({ rowData }) => {
+const DataGrid = ({ rowData }) => {
 	const columnDefs = [
 		{ headerName: "Name", field: "name", editable: true },
 		{ headerName: "Number", field: "number", editable: true },
@@ -34,4 +34,4 @@ const Grid = ({ rowData }) => {
 	);
 };
 
-export default Grid;
+export default DataGrid;

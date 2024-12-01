@@ -1,4 +1,5 @@
 import React, { useState, useEffect} from "react";
+import { TextField, Button } from "@mui/material";
 
 const InputFields = ({
 	followUpMessage,
@@ -14,52 +15,35 @@ const InputFields = ({
 
 	return (
 		<div style={{ marginBottom: "20px" }}>
-			<label>
-				No Answer Message:
-				<textarea
-					value={noAnswerMessage}
-					onChange={(e) => setNoAnswerMessage(e.target.value)}
-					placeholder="Type your 'No Answer' message here"
-					style={{
-						width: "100%",
-						padding: "8px",
-						marginTop: "8px",
-						boxSizing: "border-box",
-						height: "60px", // Space for ~3 lines
-					}}
-				/>
-			</label>
+			<TextField
+				label="No Answer Message:"
+				multiline
+				fullWidth
+				rows={4}
+				value={noAnswerMessage}
+				onChange={(e) => setNoAnswerMessage(e.target.value)}
+				placeholder="Type your 'No Answer' message here"
+			/>
+			<br />
 			<br />
 			{!secondField ? (
-				<button
-					style={{
-						padding: "10px 20px",
-						backgroundColor: "#28a745",
-						color: "#fff",
-						border: "none",
-						borderRadius: "5px",
-						cursor: "pointer",
-					}}
+				<Button
+					variant="contained"
+					size="small"
 					onClick={() => setSecondField(true)}
 				>
 					Add second template
-				</button>
+				</Button>
 			) : (
-				<label>
-					Follow Up Message:
-					<textarea
-						value={followUpMessage}
-						onChange={(e) => setFollowUpMessage(e.target.value)}
-						placeholder="Type your 'Follow Up' message here"
-						style={{
-							width: "100%",
-							padding: "8px",
-							marginTop: "8px",
-							boxSizing: "border-box",
-							height: "60px", // Space for ~3 lines
-						}}
-					/>
-				</label>
+				<TextField
+					label="Follow up message"
+					value={followUpMessage}
+					onChange={(e) => setFollowUpMessage(e.target.value)}
+					placeholder="Type your 'Follow Up' message here"
+					multiline
+					fullWidth
+					rows={4}
+				/>
 			)}
 		</div>
 	);
