@@ -7,25 +7,40 @@ const GeneratedLinks = ({
 	isMobile,
 	followUpMessage,
 	noAnswerMessage,
+	extensionCode,
 }) => {
 	// Utility function to clean and validate phone numbers
 	const validateAndFormatNumber = (number) => {
 		// Remove all non-numeric characters except +
 		const cleanedNumber = number.replace(/[^0-9+]/g, "");
 
+		console.log("cleaned number: ", cleanedNumber);
+
 		// If the number starts with +, assume it's already a valid international number
 		if (cleanedNumber.startsWith("+")) {
 			return cleanedNumber;
 		}
 
+		// If the number starts with 44, add +
+		if (cleanedNumber.startsWith("44")) {
+			console.log(
+				"starts with 44",
+			);
+				return `+${cleanedNumber}`
+		}
+
 		// If the number starts with 0, assume it's a UK local number
 		if (cleanedNumber.startsWith("0")) {
-			return `+44${cleanedNumber.slice(1)}`; // Replace leading 0 with +44
+			console.log(
+				"starts with 0",
+				`+${extensionCode}${cleanedNumber.slice(1)}`
+			);
+			return `+${extensionCode}${cleanedNumber.slice(1)}`; // Replace leading 0 with +44
 		}
 
 		// If the number is already in bare format (e.g., 7903123123), assume it's UK and add +44
 		if (/^[0-9]{10}$/.test(cleanedNumber)) {
-			return `+44${cleanedNumber}`;
+			return `${extensionCode}${cleanedNumber}`;
 		}
 
 		// If it doesn't match any valid format, return null
@@ -95,11 +110,16 @@ const GeneratedLinks = ({
 		return isLandline;
 	};
 
+	const gridSizing = { xs: 4, sm: 3, md: 2, xl: 1 };
+
 	if (rowData.length > 0) {
 		return (
-			<div id="generatedLinks">
-				<h2>Generated Links</h2>
-
+			<div id="generatedLinks"
+			style={{minHeight: '80vh'}}
+			>
+				<h2
+				className="sarala-bold"
+				>Your Links</h2>
 				<Button
 					variant="contained"
 					size="small"
@@ -113,41 +133,50 @@ const GeneratedLinks = ({
 				>
 					Edit template messages and data
 				</Button>
-
 				<Grid container spacing={4}>
-					{rowData.map((row, index) => (
-						<Grid size={12} key={index}>
-							<Grid container spacing={5}>
-								<Grid>
-									<strong>{row.name}</strong>
-									<br />({row.number})
-								</Grid>
-
-								{isMobile && (
-									<Grid>
-										<center>
-											<a
-												href={`tel:${formatForTel(row.number)}`}
-												target="_blank"
-												rel="noopener noreferrer"
-											>
-												Call
-											</a>
-										</center>
+					{rowData
+						.filter((row) => row.name.trim() !== "" || row.number.trim() !== "") // Filter rows
+						.map((row, index) => (
+							<Grid size={12} key={index}>
+								<Grid container spacing={3}>
+									<Grid size={gridSizing}>
+										<strong>{row.name}</strong>
+										<br />
+										{row.number ? (
+											<span style={{ fontSize: isMobile ? "10px" : "12px" }}>
+												{`${formatForTel(row.number)}`}
+											</span>
+										) : (
+											<em>No number</em>
+										)}
+										{isMobile && (
+											<center>
+												<a
+													href={`tel:${formatForTel(row.number)}`}
+													target="_blank"
+													rel="noopener noreferrer"
+												>
+													Call
+												</a>
+											</center>
+										)}
 									</Grid>
-								)}
 
-								<Grid>
-									{!isLandline(row.number) ? (
-										<>
-											No answer message
+									<Grid size={gridSizing}>
+										{!row.number ? (
+											<></>
+										) : !isLandline(row.number) ? (
 											<div
 												style={{
 													width: "100%",
 													display: "flex",
-													justifyContent: "space-around",
+													flexDirection: "column",
+													justifyItems: "center",
+													alignItems: "center",
 												}}
 											>
+												<b>Template 1</b>
+
 												<a
 													href={generateWhatsAppLink(
 														row.name,
@@ -159,7 +188,6 @@ const GeneratedLinks = ({
 												>
 													WhatsApp
 												</a>
-
 												<a
 													href={generateSMSLink(
 														row.name,
@@ -172,27 +200,31 @@ const GeneratedLinks = ({
 													SMS
 												</a>
 											</div>
-										</>
-									) : (
-										<em>
-											Landline!
-											<br />
-											Not textable.
-										</em>
-									)}
-								</Grid>
+										) : (
+											<center>
+												<em>
+													Landline!
+													<br />
+													Not textable.
+												</em>
+											</center>
+										)}
+									</Grid>
 
-								<Grid>
-									{!isLandline(row.number) ? (
-										<>
-											Follow up message
+									<Grid size={gridSizing}>
+										{!row.number ? (
+											<></>
+										) : !isLandline(row.number) && followUpMessage !== "" ? (
 											<div
 												style={{
 													width: "100%",
 													display: "flex",
-													justifyContent: "space-around",
+													flexDirection: "column",
+													justifyItems: "center",
+													alignItems: "center",
 												}}
 											>
+												<b>Template 2</b>
 												<a
 													href={generateWhatsAppLink(
 														row.name,
@@ -204,7 +236,6 @@ const GeneratedLinks = ({
 												>
 													WhatsApp
 												</a>
-
 												<a
 													href={generateSMSLink(
 														row.name,
@@ -217,14 +248,13 @@ const GeneratedLinks = ({
 													SMS
 												</a>
 											</div>
-										</>
-									) : (
-										<></>
-									)}
+										) : (
+											<></>
+										)}
+									</Grid>
 								</Grid>
 							</Grid>
-						</Grid>
-					))}
+						))}
 				</Grid>
 			</div>
 		);

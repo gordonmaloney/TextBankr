@@ -1,5 +1,6 @@
 import React, { useState, useEffect} from "react";
 import { TextField, Button } from "@mui/material";
+import { BtnStyleSmall, TextFieldStyle } from "./MUIShared";
 
 const InputFields = ({
 	followUpMessage,
@@ -14,38 +15,56 @@ const InputFields = ({
 	}, [followUpMessage]);
 
 	return (
-		<div style={{ marginBottom: "20px" }}>
-			<TextField
-				label="No Answer Message:"
-				multiline
-				fullWidth
-				rows={4}
-				value={noAnswerMessage}
-				onChange={(e) => setNoAnswerMessage(e.target.value)}
-				placeholder="Type your 'No Answer' message here"
-			/>
+		<div>
+			<h3 style={{ marginTop: 0 }}>Draft your message</h3>
 
-			{!secondField ? (
-				<Button
-					style={{ marginTop: "5px", float: "right" }}
-					variant="contained"
-					size="small"
-					onClick={() => setSecondField(true)}
-				>
-					Add second template
-				</Button>
-			) : (
+			<div className="field-cont">
+				<p style={{ marginTop: 0, fontSize: "small" }}>
+					You can draft up to two different template messages to send to your
+					contacts. For example if you are phonebanking, you could have two
+					different messages depending on whether they pick up.
+					<br />
+					<br />
+					Note: the tool automatically adds {"`Hey {{first_name}}!`"} to the
+					start of the message, so you don’t need to include anything like that!{" "}
+				</p>
 				<TextField
-					label="Follow up message"
-					value={followUpMessage}
-					onChange={(e) => setFollowUpMessage(e.target.value)}
-					placeholder="Type your 'Follow Up' message here"
+					label="Template message:"
 					multiline
 					fullWidth
-					style={{ marginTop: "14px" }}
+					sx={TextFieldStyle}
 					rows={4}
+					value={noAnswerMessage}
+					onChange={(e) => setNoAnswerMessage(e.target.value)}
+					placeholder="Type your template message here"
 				/>
-			)}
+
+				{!secondField ? (
+					<div style={{ display: "flex", justifyContent: "end" }}>
+						<Button
+							style={{ marginTop: "5px" }}
+							variant="contained"
+							sx={BtnStyleSmall}
+							size="small"
+							onClick={() => setSecondField(true)}
+						>
+							Add second template
+						</Button>
+					</div>
+				) : (
+					<TextField
+						label="Template 2:"
+						value={followUpMessage}
+						sx={TextFieldStyle}
+						onChange={(e) => setFollowUpMessage(e.target.value)}
+						placeholder="Type your alternative template message here"
+						multiline
+						fullWidth
+						style={{ marginTop: "14px" }}
+						rows={4}
+					/>
+				)}
+			</div>
 		</div>
 	);
 };

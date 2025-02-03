@@ -1,3 +1,17 @@
+@import url('https://fonts.googleapis.com/css2?family=Funnel+Sans:ital,wght@0,300..800;1,300..800&family=Sarala:wght@400;700&display=swap');
+
+
+.sarala-regular {
+  font-family: "Sarala", serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.sarala-bold {
+  font-family: "Sarala", serif;
+  font-weight: 700;
+  font-style: normal;
+}
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -5,18 +19,88 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+background-color: #f4fffc;
+  height: 100%;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
-}
+
 
 #header {
   width: 100%;
-  background-color: green;
   color: white;
+  background-color: #2C3532;
   height: 35px;
   display: flex;
   align-items: center;
+  justify-content: start;
+    align-items: center;
+    max-width: 100vw;
+    padding: 10px 0 10px 0;
+  
+  }
+  
+  
+  .home-cont {
+    background-color: #2C3532;
+    color: white;
+    margin-right: 15vw;
+    margin-top: 40px;
+    margin-bottom: 20px;
+  }
+  
+  .home-cont-inner {
+    margin-left: 15vw;
+    padding: 10px 20px;
+  }
+  
+  
+  .field-cont {
+    background-color: #2C3532;
+    padding: 10px;
+    color: white;
+  
+  }
+  
+  .html5-qrcode-element {
+    color: white;
+    background-color: rgb(40, 167, 69);
+    padding: 10px;
+    border-radius: 5px;
+    border: 0px;
+    text-transform: uppercase;
+  }
+  
+  
+  
+  #html5-qrcode-button-camera-start {
+    background-color: rgb(40, 167, 69);
+  }
+  
+  #html5-qrcode-button-camera-stop {
+    background-color: rgb(255, 77, 77);
+  }
+  
+  #reader {
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  
+  #html5-qrcode-anchor-scan-type-change {
+    display: none !important
+  }
+  
+  #generatedLinks {
+    scroll-margin-top: 100px;
+    /* Creates a persistent offset */
+  }
+  
+  .mobileCont {
+    width: 80%;
+    margin: 20px auto 0 auto;
+    padding: 10px;
+    color: white;
+    background-color: #2C3532;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
 }

@@ -8,12 +8,15 @@ import GenerateMobileData from "./GenerateMobileData";
 import Scanning from "./Scanning";
 import InputFields from "./InputFields";
 import Header from "./Header";
+import CountrySelect from "./CountrySelect";
+import { BtnStyleSmall } from "./MUIShared";
 
 const TextBankr = () => {
 	const [rowData, setRowData] = useState([]);
 	const [noAnswerMessage, setNoAnswerMessage] = useState("");
 	const [followUpMessage, setFollowUpMessage] = useState("");
 
+	const [extensionCode, setExtensionCode] = useState(() => "+44"); // Lazy initialization
 
 	const clearAllData = () => {
 		setRowData([]);
@@ -29,6 +32,12 @@ const TextBankr = () => {
 		};
 		checkMobile();
 	}, []);
+
+
+useEffect(() => {
+	window.scrollTo({ top: 0, behavior: "smooth" });
+}, []);
+
 
 	const handlePaste = (event) => {
 		// Check if the paste target is an input or textarea to avoid interfering
@@ -110,19 +119,13 @@ const TextBankr = () => {
 		<div>
 			<Header />
 			<div style={{ padding: "20px" }}>
-				<p style={{ textAlign: "center" }}>
-					<em>
-						You are viewing a work in progress - please be patient 🙏
-						<br />
-						Any comments, email gordonmaloney @ gmail . com
-					</em>
-				</p>
-
 				<Scanning
 					isMobile={isMobile}
+					rowData={rowData}
 					setRowData={setRowData}
 					setNoAnswerMessage={setNoAnswerMessage}
 					setFollowUpMessage={setFollowUpMessage}
+					setExtensionCode={setExtensionCode}
 				/>
 
 				<Box sx={{ flexGrow: 1 }}>
@@ -136,15 +139,49 @@ const TextBankr = () => {
 							/>
 
 							<br />
-							<Grid
-								container
-								spacing={2}
-								justifyContent={"space-between"}
-								style={{ marginTop: "14px" }}
-							>
-								<Grid item size={6}>
+						</Grid>
+
+						<Grid size={{ xs: 12, sm: 6 }}>
+							<DataGrid
+								rowData={rowData}
+								setRowData={setRowData}
+								clearAllData={clearAllData}
+								extensionCode={extensionCode}
+								setExtensionCode={setExtensionCode}
+							/>
+						</Grid>
+					</Grid>
+
+					<Grid
+						container
+						spacing={2}
+						justifyContent={"space-between"}
+						style={{ marginTop: "14px" }}
+					>
+						<Grid item size={12}>
+							<h3 style={{ marginTop: 0 }}>Send your message</h3>
+
+							{!isMobile ? (
+								<>
+									<p style={{ marginTop: 0, fontSize: "small" }}>
+										It’s easiest to send the messages from a mobile. If you
+										chose to do that, there’s also a one-click to call button
+										for each contact, so you don’t need to type the numbers in
+										to ring them. However, if you’d prefer, you can send your
+										message from right here in your browser.
+									</p>
+
+									<GenerateMobileData
+										rowData={rowData}
+										isMobile={isMobile}
+										followUpMessage={followUpMessage}
+										noAnswerMessage={noAnswerMessage}
+										extensionCode={extensionCode}
+									/>
+
 									<Button
 										variant="contained"
+										sx={{ ...BtnStyleSmall, marginLeft: isMobile ? 0 : "20px" }}
 										disabled={rowData.length == 0}
 										onClick={() =>
 											document
@@ -152,27 +189,61 @@ const TextBankr = () => {
 												.scrollIntoView({ behavior: "smooth" })
 										}
 									>
-										Go to links
+										Send from browser{" "}
 									</Button>
-								</Grid>
-								<Grid item size={6}>
-									<GenerateMobileData
-										rowData={rowData}
-										isMobile={isMobile}
-										followUpMessage={followUpMessage}
-										noAnswerMessage={noAnswerMessage}
-									/>
-								</Grid>
-							</Grid>
+								</>
+							) : (
+								<>
+									<p style={{ marginTop: 0, fontSize: "small" }}>
+										Add in your contacts and a template message above, and you
+										can use the buttons below to call, WhatsApp, and text them:
+									</p>
+
+									<Button
+										variant="contained"
+										sx={{ ...BtnStyleSmall, marginLeft: isMobile ? 0 : "20px" }}
+										disabled={rowData.length == 0}
+										onClick={() =>
+											document
+												.getElementById("generatedLinks")
+												.scrollIntoView({ behavior: "smooth" })
+										}
+									>
+										Go to links{" "}
+									</Button>
+								</>
+							)}
 						</Grid>
 
-						<Grid size={{ xs: 12, sm: 6 }}>
-							<DataGrid rowData={rowData} clearAllData={clearAllData} />
-						</Grid>
+						<div style={{ display: "none" }}>
+							<Grid item size={6}>
+								<Button
+									variant="contained"
+									disabled={rowData.length == 0}
+									onClick={() =>
+										document
+											.getElementById("generatedLinks")
+											.scrollIntoView({ behavior: "smooth" })
+									}
+								>
+									Go to links
+								</Button>
+							</Grid>
+							<Grid item size={6}>
+								<GenerateMobileData
+									rowData={rowData}
+									isMobile={isMobile}
+									followUpMessage={followUpMessage}
+									noAnswerMessage={noAnswerMessage}
+									extensionCode={extensionCode}
+								/>
+							</Grid>
+						</div>
 					</Grid>
 				</Box>
 
 				<GeneratedLinks
+					extensionCode={extensionCode}
 					rowData={rowData}
 					isMobile={isMobile}
 					followUpMessage={followUpMessage}

@@ -1,9 +1,23 @@
-import React from "react";
+import React, { useState } from "react";
+import { Button, Modal, Box, Typography } from "@mui/material";
+import { Link } from "react-router-dom";
 
 const Header = () => {
 	return (
-		<div id="header">
-			<h2 style={{ marginLeft: "10px" }}>TextBankr</h2>
+		<div id="header" style={{}}>
+			<Link to="../"
+				style={{
+					color: 'white',
+					textDecoration: "none"
+				}}
+			>
+				<h2 className="sarala-bold"
+					style={{
+					paddingLeft: "20px",
+				}}>
+					Textbankr
+				</h2>
+			</Link>
 		</div>
 	);
 };
