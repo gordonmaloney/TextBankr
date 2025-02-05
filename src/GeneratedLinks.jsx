@@ -1,6 +1,11 @@
 import React from "react";
 import { Button } from "@mui/material";
 import Grid from "@mui/material/Grid2";
+import { LinkBtn } from "./MUIShared";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faWhatsapp } from "@fortawesome/free-brands-svg-icons";
+import { faPhone, faSms } from "@fortawesome/free-solid-svg-icons";
+import { countries } from "./CountrySelect";
 
 const GeneratedLinks = ({
 	rowData,
@@ -21,12 +26,11 @@ const GeneratedLinks = ({
 			return cleanedNumber;
 		}
 
-		// If the number starts with 44, add +
-		if (cleanedNumber.startsWith("44")) {
-			console.log(
-				"starts with 44",
-			);
-				return `+${cleanedNumber}`
+		for (const country of countries) {
+			if (cleanedNumber.startsWith(country.code.replace("+", ""))) {
+				console.log(`Starts with ${country.code} (${country.name})`);
+				return `+${cleanedNumber}`;
+			}
 		}
 
 		// If the number starts with 0, assume it's a UK local number
@@ -88,6 +92,17 @@ const GeneratedLinks = ({
 		// Extract the first few digits for analysis
 		let numberPrefix = cleanedNumber;
 
+		// Check if number starts with a country code
+		let countryCode = null;
+		for (const country of countries) {
+			const strippedCode = country.code.replace("+", ""); // Remove +
+			if (numberPrefix.startsWith(strippedCode)) {
+				countryCode = strippedCode;
+				numberPrefix = numberPrefix.slice(strippedCode.length); // Remove country code
+				break; // Stop checking after finding the first match
+			}
+		}
+
 		// Handle numbers starting with + (international)
 		if (cleanedNumber.startsWith("+")) {
 			numberPrefix = cleanedNumber.slice(1); // Remove the +
@@ -110,16 +125,10 @@ const GeneratedLinks = ({
 		return isLandline;
 	};
 
-	const gridSizing = { xs: 4, sm: 3, md: 2, xl: 1 };
-
 	if (rowData.length > 0) {
 		return (
-			<div id="generatedLinks"
-			style={{minHeight: '80vh'}}
-			>
-				<h2
-				className="sarala-bold"
-				>Your Links</h2>
+			<div id="generatedLinks" style={{ minHeight: "80vh" }}>
+				<h2 className="sarala-bold" style={{marginBottom: "-18px"}}>Your Links:</h2>
 				<Button
 					variant="contained"
 					size="small"
@@ -133,36 +142,56 @@ const GeneratedLinks = ({
 				>
 					Edit template messages and data
 				</Button>
-				<Grid container spacing={4}>
+				<Grid container spacing={0}>
 					{rowData
 						.filter((row) => row.name.trim() !== "" || row.number.trim() !== "") // Filter rows
 						.map((row, index) => (
-							<Grid size={12} key={index}>
-								<Grid container spacing={3}>
-									<Grid size={gridSizing}>
-										<strong>{row.name}</strong>
-										<br />
-										{row.number ? (
-											<span style={{ fontSize: isMobile ? "10px" : "12px" }}>
-												{`${formatForTel(row.number)}`}
-											</span>
-										) : (
-											<em>No number</em>
-										)}
-										{isMobile && (
+							<Grid
+								size={12}
+								key={index}
+								style={{
+									paddingTop: "18px",
+									paddingBottom: "18px",
+									borderBottom: "1px solid grey",
+									backgroundColor:
+										index % 2 !== 0 ? "rgba(240,240,240,0.5)" : "inherit",
+								}}
+							>
+								<Grid container spacing={1}>
+									<Grid size={{ xs: 6, sm: 3, md: 2, xl: 1 }}>
+										<center>
+											<h2 style={{ margin: 0 }}>{row.name}</h2>
+											{formatForTel(row.number) ? (
+												<span style={{ fontSize: isMobile ? "12px" : "12px" }}>
+													{`${formatForTel(row.number)}`}
+												</span>
+											) : (
+												<em>No number</em>
+											)}
+										</center>
+									</Grid>
+									<Grid size={{ xs: 6, sm: 3, md: 2, xl: 1 }}>
+										{isMobile && formatForTel(row.number) && (
 											<center>
 												<a
 													href={`tel:${formatForTel(row.number)}`}
 													target="_blank"
 													rel="noopener noreferrer"
 												>
-													Call
+													<Button sx={LinkBtn}>
+														<FontAwesomeIcon
+															icon={faPhone}
+															size="2x"
+															style={{ marginRight: "5px" }}
+														/>
+														Call
+													</Button>
 												</a>
 											</center>
 										)}
 									</Grid>
 
-									<Grid size={gridSizing}>
+									<Grid size={{ xs: 6, sm: 3, md: 2, xl: 1 }}>
 										{!row.number ? (
 											<></>
 										) : !isLandline(row.number) ? (
@@ -186,32 +215,38 @@ const GeneratedLinks = ({
 													target="_blank"
 													rel="noopener noreferrer"
 												>
-													WhatsApp
+													<Button sx={LinkBtn}>
+														<FontAwesomeIcon
+															icon={faWhatsapp}
+															size="2x"
+															style={{ marginRight: "5px" }}
+														/>
+														WhatsApp
+													</Button>
 												</a>
 												<a
-													href={generateSMSLink(
-														row.name,
-														row.number,
-														noAnswerMessage
-													)}
+													href={generateSMSLink(row.number, noAnswerMessage)}
 													target="_blank"
 													rel="noopener noreferrer"
 												>
-													SMS
+													<Button sx={LinkBtn}>
+														<FontAwesomeIcon
+															icon={faSms}
+															size="2x"
+															style={{ marginRight: "5px" }}
+														/>
+														SMS
+													</Button>
 												</a>
 											</div>
 										) : (
 											<center>
-												<em>
-													Landline!
-													<br />
-													Not textable.
-												</em>
+												<em>Not textable.</em>
 											</center>
 										)}
 									</Grid>
 
-									<Grid size={gridSizing}>
+									<Grid size={{ xs: 6, sm: 3, md: 2, xl: 1 }}>
 										{!row.number ? (
 											<></>
 										) : !isLandline(row.number) && followUpMessage !== "" ? (
@@ -234,7 +269,14 @@ const GeneratedLinks = ({
 													target="_blank"
 													rel="noopener noreferrer"
 												>
-													WhatsApp
+													<Button sx={LinkBtn}>
+														<FontAwesomeIcon
+															icon={faWhatsapp}
+															size="2x"
+															style={{ marginRight: "5px" }}
+														/>
+														WhatsApp
+													</Button>
 												</a>
 												<a
 													href={generateSMSLink(
@@ -245,7 +287,14 @@ const GeneratedLinks = ({
 													target="_blank"
 													rel="noopener noreferrer"
 												>
-													SMS
+													<Button sx={LinkBtn}>
+														<FontAwesomeIcon
+															icon={faSms}
+															size="2x"
+															style={{ marginRight: "5px" }}
+														/>
+														SMS
+													</Button>
 												</a>
 											</div>
 										) : (

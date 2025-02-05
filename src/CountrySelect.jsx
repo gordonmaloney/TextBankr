@@ -3,7 +3,7 @@ import { MenuItem, Select, FormControl, InputLabel } from "@mui/material";
 import { SelectFieldStyle, TextFieldStyle } from "./MUIShared";
 
 // Hardcoded list of countries
-const countries = [
+export const countries = [
 	{ name: "United Kingdom", emoji: "🇬🇧", code: "+44" },
 	{ name: "Ireland", emoji: "🇮🇪", code: "+353" },
 	{ name: "United States", emoji: "🇺🇸", code: "+1" },
