@@ -199,18 +199,6 @@ useEffect(() => {
 										can use the buttons below to call, WhatsApp, and text them:
 									</p>
 
-									<Button
-										variant="contained"
-										sx={{ ...BtnStyleSmall, marginLeft: isMobile ? 0 : "20px" }}
-										disabled={rowData.length == 0}
-										onClick={() =>
-											document
-												.getElementById("generatedLinks")
-												.scrollIntoView({ behavior: "smooth" })
-										}
-									>
-										Go to links{" "}
-									</Button>
 								</>
 							)}
 						</Grid>

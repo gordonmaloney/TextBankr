@@ -64,6 +64,7 @@ const GeneratedLinks = ({
 	};
 
 	const generateSMSLink = (name, number, message) => {
+		console.log('generating sms link :', number)
 		const validatedNumber = validateAndFormatNumber(number);
 		if (!validatedNumber) return null; // Invalid number, skip generating the link
 
@@ -75,7 +76,7 @@ const GeneratedLinks = ({
 			: validatedNumber;
 
 		const encodedMessage = encodeURIComponent(`Hey ${firstName}! ${message}`);
-		return `sms://${formattedNumber}?&body=${encodedMessage}`;
+		return `sms:${formattedNumber}?&body=${encodedMessage}`;
 	};
 
 	const formatForTel = (number) => {
@@ -223,10 +224,10 @@ const GeneratedLinks = ({
 														/>
 														WhatsApp
 													</Button>
-												</a>
+													</a>
 												<a
-													href={generateSMSLink(row.number, noAnswerMessage)}
-													target="_blank"
+													href={generateSMSLink(row.name, row.number, noAnswerMessage)}
+													
 													rel="noopener noreferrer"
 												>
 													<Button sx={LinkBtn}>
@@ -284,7 +285,6 @@ const GeneratedLinks = ({
 														row.number,
 														followUpMessage
 													)}
-													target="_blank"
 													rel="noopener noreferrer"
 												>
 													<Button sx={LinkBtn}>
