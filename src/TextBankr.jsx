@@ -168,7 +168,8 @@ useEffect(() => {
 										chose to do that, there’s also a one-click to call button
 										for each contact, so you don’t need to type the numbers in
 										to ring them. However, if you’d prefer, you can send your
-										message from right here in your browser.
+										message from right here in your browser.<br /><br />
+										If you are hosting a session, you can use the button below to divvy up the contacts between attendees.
 									</p>
 
 									<GenerateMobileData

@@ -1,9 +1,8 @@
-/* host party */
-
 import React, { useState, useEffect } from "react";
 import QRCode from "qrcode";
 import { Button, TextField } from "@mui/material";
 import { BtnStyleSmall } from "./MUIShared";
+import Grid from "@mui/material/Grid2";
 
 const GenerateMobileData = ({
 	rowData,
@@ -149,6 +148,17 @@ const GenerateMobileData = ({
 		setIsModalOpen(true);
 	};
 
+	const closeModal = () => {
+		setIsModalOpen(false);
+		setHosting(false);
+	};
+
+	const openHostModal = () => {
+		setHosting(true);
+		generateMobileData();
+		setIsModalOpen(true);
+	};
+
 	return (
 		<>
 			{!isMobile && (
@@ -159,14 +169,23 @@ const GenerateMobileData = ({
 						onClick={() => openModal()}
 						disabled={rowData.length === 0}
 					>
-						Send from mobile{" "}
+						Send from mobile
+					</Button>
+
+					<Button
+						variant="contained"
+						sx={{ ...BtnStyleSmall, marginLeft: isMobile ? 0 : "20px" }}
+						onClick={() => openHostModal()}
+						disabled={rowData.length === 0}
+					>
+						Host a session
 					</Button>
 				</>
 			)}
 
 			{isModalOpen && (
 				<div
-					onClick={() => setIsModalOpen(false)}
+					onClick={() => closeModal()}
 					style={{
 						position: "fixed",
 						top: 0,
@@ -194,11 +213,20 @@ const GenerateMobileData = ({
 						<h2 style={{ marginBottom: "12px", marginTop: "12px" }}>
 							Scan from your mobile
 						</h2>
-						<p style={{ textAlign: "left", padding: "0 20px", marginTop: 0 }}>
+						<p
+							style={{
+								textAlign: "left",
+								padding: "0 20px",
+								marginTop: 0,
+								zIndex: 5,
+								display: !hosting ? "block" : "none",
+								position: "relative",
+							}}
+						>
 							To send your messages from your phone, simply open{" "}
 							<u>{baseURL}/start</u> from your mobile, hit "Scan from desktop"
 							and scan the below QR code{qrCodes.length > 1 && <>s</>}.
-							{qrCodes.length > 1 && (
+							{qrCodes.length > 1 && !hosting && (
 								<>
 									<br />
 									<br />
@@ -214,70 +242,141 @@ const GenerateMobileData = ({
 							)}
 						</p>
 
-						{hosting && numBatches > 1 && (
-							<h4 style={{ margin: 0 }}>User {currentBatchIndex + 1}</h4>
+						{hosting && (
+							<>
+								<p
+									style={{
+										textAlign: "left",
+										padding: "0 20px",
+										marginTop: 0,
+										marginBottom: 0,
+										zIndex: 5,
+										display: "block",
+										position: "relative",
+									}}
+								>
+									If you are hosting a phone- or text-banking session, you can
+									divvy up the contacts between attendees. Just say how many
+									people you want to split it up by, and each user will get a
+									set of QR codes with the template message(s) and their portion
+									of the contacts.
+								</p>
+								<div>
+									<Grid
+										container
+										spacing={2}
+										style={{ width: "80%", margin: "0 auto", position: 'relative', zIndex: "2" }}
+										justifyContent={"center"}
+										alignItems={"center"}
+									>
+										<Grid size={{ xs: 6 }}>
+											<h4 style={{ textAlign: "left" }}>
+												How many people are you splitting between?
+											</h4>
+										</Grid>{" "}
+										<Grid>
+											<TextField
+												type="number"
+												value={numBatches}
+												onChange={(e) =>
+													setNumBatches(
+														Math.max(1, parseInt(e.target.value, 10) || 1)
+													)
+												}
+												sx={{
+													width: "120px",
+													marginRight: "10px",
+													position: "relative",
+													zIndex: "2",
+												}}
+											/>
+										</Grid>
+									</Grid>
+									{numBatches > 1 && (
+										<div>
+											<p style={{ textAlign: "left", padding: "0 20px" }}>
+												Once each person has scanned, you can use these buttons
+												to generate the QR codes for the next user.
+											</p>
+
+											<Button
+												variant="contained"
+												sx={{
+													...BtnStyleSmall,
+													position: "relative",
+													zIndex: "2",
+													marginRight: "5px",
+												}}
+												onClick={prevBatch}
+												disabled={currentBatchIndex === 0}
+											>
+												Previous
+											</Button>
+
+											<Button
+												variant="contained"
+												sx={{
+													...BtnStyleSmall,
+													position: "relative",
+													zIndex: "2",
+													marginLeft: "5px",
+												}}
+												onClick={nextBatch}
+												disabled={currentBatchIndex === batchQrData.length - 1}
+											>
+												Next
+											</Button>
+											<br />
+											<br />
+										</div>
+									)}
+								</div>
+							</>
 						)}
+
+						{hosting && numBatches > 1 && (
+							<h3
+								style={{
+									margin: 0,
+									display: "block",
+									position: "relative",
+									zIndex: "2",
+									marginBottom: "5px",
+								}}
+							>
+								User {currentBatchIndex + 1}
+							</h3>
+						)}
+
 						<img
 							src={qrCodes[currentQrIndex]}
 							alt="QR Code"
-							style={{ maxWidth: "500px", height: "auto" }}
+							style={{
+								maxWidth: "500px",
+								height: "auto",
+								position: "relative",
+								zIndex: 1,
+								margin: "-20px",
+							}}
 						/>
-						<p>
+						<span
+							style={{
+								display: "block",
+								position: "relative",
+								zIndex: 5,
+							}}
+						>
 							QR Code {currentQrIndex + 1} of {qrCodes.length}
-						</p>
-
+						</span>
+						<br />
 						<Button
 							variant="contained"
 							sx={BtnStyleSmall}
-							onClick={() => setIsModalOpen(false)}
+							onClick={() => closeModal()}
 						>
 							Close
 						</Button>
 						<br />
-
-						<Button
-							onClick={() => handleHosting()}
-							sx={{ ...BtnStyleSmall, margin: "10px 0" }}
-						>
-							Host a session
-						</Button>
-
-						{hosting && (
-							<div>
-								<TextField
-									type="number"
-									label="Number of batches"
-									value={numBatches}
-									onChange={(e) =>
-										setNumBatches(
-											Math.max(1, parseInt(e.target.value, 10) || 1)
-										)
-									}
-									sx={{ width: "120px", marginRight: "10px" }}
-								/>
-								<br />
-								{numBatches > 1 && (
-									<>
-										<Button
-											variant="contained"
-											sx={BtnStyleSmall}
-											onClick={prevBatch}
-											disabled={currentBatchIndex === 0}
-										>
-											Previous Batch
-										</Button>
-										<Button
-											variant="contained"
-											sx={BtnStyleSmall}
-											onClick={nextBatch}
-											disabled={currentBatchIndex === batchQrData.length - 1}
-										>
-											Next Batch
-										</Button>
-									</>
-								)}
-							</div>
-						)}
 					</div>
 				</div>
 			)}

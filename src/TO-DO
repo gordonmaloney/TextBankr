@@ -12,25 +12,32 @@
     - tel: call links too
 //split up component
 
+//layout better
 
-layout better
+//allow you to paste into template message
 
-allow you to paste into template message
+// security/GDPR Qs
 
-security/GDPR Qs
+// "host textbank" function
 
-"host textbank" function
+//drag and drop data - maybe not poss???? - not poss
 
-drag and drop data - maybe not poss????
+//make it all more obvious and clear
+
+//UI on hosting function; copy/explainer on hosting
 
 
-???other things from huawei phone
 
-make it all more obvious and clear
 
-rap/script function
+Fallback URL if scanned externally 
 
-feedback function????
+Camera selection on iphone (and new browsers??)
+
+Layout on qr code modal - can currently overflow???
+
+Formatting tips for WhatsApp msg; handle removing them for SMS
+
+rap/script function - for hosting???
 
 add signal -
     probably need "generate/copy msg button" and then share link separate, like: sgnl://signal.me/#p/+447903700751 
