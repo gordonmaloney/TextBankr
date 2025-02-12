@@ -55,7 +55,8 @@ const Home = () => {
 										<em>Optionally</em> - if it’s easier to send the messages
 										from your phone, you can get set up on your desktop and then
 										easily send all the data to your mobile to call your
-										contacts and send the messages.
+										contacts and send the messages. You can also 'host a
+										session' and easily divvy up contacts between attendees.
 									</li>
 								</ol>
 								This tool is designed for low- to no-budget organisations -
@@ -89,7 +90,7 @@ const Home = () => {
 								message contacts.
 							</h4>
 						</center>
-						<p style={{fontSize: "small"}}>
+						<p style={{ fontSize: "small" }}>
 							<b>How does it work?</b>
 							<ol>
 								<li>
@@ -110,7 +111,8 @@ const Home = () => {
 									<em>Optionally</em> - if it’s easier to send the messages from
 									your phone, you can get set up on your desktop and then easily
 									send all the data to your mobile to call your contacts and
-									send the messages.
+									send the messages. You can also 'host a session' and easily
+									divvy up contacts between attendees.
 								</li>
 							</ol>
 							This tool is designed for low- to no-budget organisations - though
