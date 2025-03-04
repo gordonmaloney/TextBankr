@@ -108,18 +108,56 @@ background-color: #f4fffc;
 
 
 
-
-.card-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #f0f0f0;
-  /* Optional: Background color for better visibility */
+  background-color: rgba(0, 0, 0, 0.4);
+  /* TRUE SEMI-TRANSPARENT OVERLAY */
+  backdrop-filter: blur(2px);
+  /* Subtle blur effect */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  pointer-events: auto;
+  /* Ensure overlay is clickable */
+}
+
+.open-button {
+  padding: 10px 20px;
+  background-color: #3498db;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin-top: 20px;
+  z-index: 10;
+}
+
+.open-button:hover {
+  background-color: #2980b9;
+}
+
+.card-container {
+  position: relative;
+  width: 320px;
+  height: 500px;
+  background-color: transparent;
+  /* Keep it transparent to see the blur */
+  border-radius: 10px;
+  overflow: visible;
+  /* Fix clipping issue */
+  display: flex;
+  justify-content: center;
+  /* Center horizontally */
+  align-items: center;
+  /* Center vertically */
+  z-index: 1010;
+  /* Ensure above overlay */
 }
 
 .card,
@@ -169,4 +207,19 @@ background-color: #f4fffc;
 .end-card h3 {
   color: #666;
   margin: 0;
+}
+
+.close-button {
+  margin-top: 20px;
+  padding: 8px 16px;
+  background-color: #e74c3c;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.close-button:hover {
+  background-color: #c0392b;
 }
