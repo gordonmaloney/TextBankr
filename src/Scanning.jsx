@@ -3,6 +3,7 @@ import { Html5QrcodeScanner } from "html5-qrcode";
 import { Button } from "@mui/material";
 
 const Scanning = ({
+	Translation,
 	isMobile,
 	rowData,
 	setRowData,
@@ -20,7 +21,7 @@ const Scanning = ({
 	};
 
 	useEffect(() => {
-		if (scanProgress === "All QR codes scanned and data reconstructed!") {
+		if (scanProgress === Translation.scanSuccess) {
 			scrollToLinks();
 		}
 	}, [scanProgress]);
@@ -35,13 +36,6 @@ const Scanning = ({
 			fps: 25,
 			qrbox: 800,
 		});
-
-		const config = {
-			experimentalFeatures: {
-				useBarCodeDetectorIfSupported: true,
-			},
-			facingMode: "environment",
-		};
 
 		scanner.render(
 			(decodedText) => {
@@ -58,7 +52,7 @@ const Scanning = ({
 						}
 
 						setScanProgress(
-							`Scanned ${scannedChunks.length} of ${totalChunks} QR codes.`
+							`${Translation.scanXofY} ${scannedChunks.length} / ${totalChunks}.`
 						);
 					}
 
@@ -90,23 +84,20 @@ const Scanning = ({
 						setFollowUpMessage(reconstructedTemplates.followUp || "");
 						setExtensionCode(scannedChunks[0].extensionCode);
 
-						setScanProgress("All QR codes scanned and data reconstructed!");
+						setScanProgress(Translation.scanSuccess);
 					}
 				} catch {
-					setScanProgress("Invalid QR Code data. Please try again.");
+					setScanProgress(Translation.scanInvalid);
 				}
 			},
 			(error) => {
-				console.error("QR Code scan error:", error);
-			},
-			config
+				console.error(Translation.scanError, error);
+			}
 		);
 
 		// Cleanup the scanner on unmount or when scanning stops
 		return () => {
-			scanner
-				.clear()
-				.catch((err) => console.error("Error clearing scanner:", err));
+			scanner.clear().catch((err) => console.error(Translation.scanError, err));
 		};
 	}, [
 		isScanning,
@@ -136,7 +127,7 @@ const Scanning = ({
 							marginBottom: "14px",
 						}}
 					>
-						Scan Data from Desktop
+						{Translation.scanBtn}{" "}
 					</Button>
 				</center>
 			)}

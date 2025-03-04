@@ -5,6 +5,8 @@ import { BtnStyleSmall } from "./MUIShared";
 import Grid from "@mui/material/Grid2";
 
 const GenerateMobileData = ({
+	Translation,
+
 	rowData,
 	isMobile,
 	followUpMessage,
@@ -19,6 +21,8 @@ const GenerateMobileData = ({
 	const [batchQrData, setBatchQrData] = useState([]); // Stores QR codes per batch
 
 	const [hosting, setHosting] = useState(false);
+
+	const [rotateSpeed, setRotateSpeed] = useState(1000);
 
 	const generateMobileData = async () => {
 		if (numBatches < 1) return;
@@ -111,10 +115,10 @@ const GenerateMobileData = ({
 		if (qrCodes.length > 0) {
 			const interval = setInterval(() => {
 				setCurrentQrIndex((prevIndex) => (prevIndex + 1) % qrCodes.length);
-			}, 1000);
+			}, rotateSpeed);
 			return () => clearInterval(interval);
 		}
-	}, [qrCodes]);
+	}, [qrCodes, rotateSpeed]);
 
 	const nextBatch = () => {
 		if (currentBatchIndex < batchQrData.length - 1) {
@@ -241,7 +245,6 @@ const GenerateMobileData = ({
 								</>
 							)}
 						</p>
-
 						{hosting && (
 							<>
 								<p
@@ -265,7 +268,12 @@ const GenerateMobileData = ({
 									<Grid
 										container
 										spacing={2}
-										style={{ width: "80%", margin: "0 auto", position: 'relative', zIndex: "2" }}
+										style={{
+											width: "80%",
+											margin: "0 auto",
+											position: "relative",
+											zIndex: "2",
+										}}
 										justifyContent={"center"}
 										alignItems={"center"}
 									>
@@ -333,7 +341,6 @@ const GenerateMobileData = ({
 								</div>
 							</>
 						)}
-
 						{hosting && numBatches > 1 && (
 							<h3
 								style={{
@@ -347,7 +354,6 @@ const GenerateMobileData = ({
 								User {currentBatchIndex + 1}
 							</h3>
 						)}
-
 						<img
 							src={qrCodes[currentQrIndex]}
 							alt="QR Code"
@@ -356,7 +362,7 @@ const GenerateMobileData = ({
 								height: "auto",
 								position: "relative",
 								zIndex: 1,
-								margin: "-20px",
+								margin: "-10px",
 							}}
 						/>
 						<span
@@ -375,6 +381,13 @@ const GenerateMobileData = ({
 							onClick={() => closeModal()}
 						>
 							Close
+						</Button>{" "}
+						<Button
+							variant="contained"
+							sx={BtnStyleSmall}
+							onClick={() => setRotateSpeed(1500)}
+						>
+							Too fast?
 						</Button>
 						<br />
 					</div>

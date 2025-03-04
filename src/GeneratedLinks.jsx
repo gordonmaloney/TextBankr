@@ -8,6 +8,8 @@ import { faPhone, faSms } from "@fortawesome/free-solid-svg-icons";
 import { countries } from "./CountrySelect";
 
 const GeneratedLinks = ({
+	Translation,
+
 	rowData,
 	isMobile,
 	followUpMessage,
@@ -64,7 +66,7 @@ const GeneratedLinks = ({
 	};
 
 	const generateSMSLink = (name, number, message) => {
-		console.log('generating sms link :', number)
+		console.log("generating sms link :", number);
 		const validatedNumber = validateAndFormatNumber(number);
 		if (!validatedNumber) return null; // Invalid number, skip generating the link
 
@@ -129,7 +131,9 @@ const GeneratedLinks = ({
 	if (rowData.length > 0) {
 		return (
 			<div id="generatedLinks" style={{ minHeight: "80vh" }}>
-				<h2 className="sarala-bold" style={{marginBottom: "-18px"}}>Your Links:</h2>
+				<h2 className="sarala-bold" style={{ marginBottom: "-18px" }}>
+					Your Links:
+				</h2>
 				<Button
 					variant="contained"
 					size="small"
@@ -224,10 +228,13 @@ const GeneratedLinks = ({
 														/>
 														WhatsApp
 													</Button>
-													</a>
+												</a>
 												<a
-													href={generateSMSLink(row.name, row.number, noAnswerMessage)}
-													
+													href={generateSMSLink(
+														row.name,
+														row.number,
+														noAnswerMessage
+													)}
 													rel="noopener noreferrer"
 												>
 													<Button sx={LinkBtn}>

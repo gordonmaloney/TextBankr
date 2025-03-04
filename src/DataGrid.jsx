@@ -7,6 +7,8 @@ import { BtnStyleSmall } from "./MUIShared";
 import CountrySelect from "./CountrySelect";
 
 const DataGrid = ({
+	Translation,
+
 	rowData,
 	setRowData,
 	clearAllData,
@@ -123,7 +125,7 @@ const DataGrid = ({
 						Clear Data
 					</Button>
 				</div>
-<br/>
+				<br />
 				<CountrySelect
 					extensionCode={extensionCode}
 					setExtensionCode={setExtensionCode}

@@ -3,6 +3,8 @@ import { TextField, Button } from "@mui/material";
 import { BtnStyleSmall, TextFieldStyle } from "./MUIShared";
 
 const InputFields = ({
+	Translation,
+
 	followUpMessage,
 	setFollowUpMessage,
 	noAnswerMessage,
@@ -16,7 +18,7 @@ const InputFields = ({
 
 	return (
 		<div>
-			<h3 style={{ marginTop: 0 }}>Draft your message</h3>
+			<h3 style={{ marginTop: 0 }}>{Translation.inputHeader}</h3>
 
 			<div className="field-cont">
 				<p style={{ marginTop: 0, fontSize: "small" }}>
@@ -27,8 +29,11 @@ const InputFields = ({
 					<br />
 					Note: the tool automatically adds {"`Hey {{first_name}}!`"} to the
 					start of the message, so you don’t need to include anything like that!{" "}
-					<br /><br />
-					For WhatsApp, you can format parts of your message by wrapping them with an asterix <b>*for bold*</b> or "_" <u>_to underline_</u>. But note that these don't work on SMS!
+					<br />
+					<br />
+					For WhatsApp, you can format parts of your message by wrapping them
+					with an asterix <b>*for bold*</b> or "_" <u>_to underline_</u>. But
+					note that these don't work on SMS!
 				</p>
 				<TextField
 					label="Template message:"

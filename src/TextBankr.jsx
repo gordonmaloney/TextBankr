@@ -10,8 +10,9 @@ import InputFields from "./InputFields";
 import Header from "./Header";
 import CountrySelect from "./CountrySelect";
 import { BtnStyleSmall } from "./MUIShared";
+import Footer from "./Footer";
 
-const TextBankr = () => {
+const TextBankr = ({ Translation }) => {
 	const [rowData, setRowData] = useState([]);
 	const [noAnswerMessage, setNoAnswerMessage] = useState("");
 	const [followUpMessage, setFollowUpMessage] = useState("");
@@ -33,11 +34,9 @@ const TextBankr = () => {
 		checkMobile();
 	}, []);
 
-
-useEffect(() => {
-	window.scrollTo({ top: 0, behavior: "smooth" });
-}, []);
-
+	useEffect(() => {
+		window.scrollTo({ top: 0, behavior: "smooth" });
+	}, []);
 
 	const handlePaste = (event) => {
 		// Check if the paste target is an input or textarea to avoid interfering
@@ -120,6 +119,7 @@ useEffect(() => {
 			<Header />
 			<div style={{ padding: "20px" }}>
 				<Scanning
+					Translation={Translation}
 					isMobile={isMobile}
 					rowData={rowData}
 					setRowData={setRowData}
@@ -132,6 +132,7 @@ useEffect(() => {
 					<Grid container spacing={2}>
 						<Grid size={{ xs: 12, sm: 6 }}>
 							<InputFields
+								Translation={Translation}
 								noAnswerMessage={noAnswerMessage}
 								setNoAnswerMessage={setNoAnswerMessage}
 								followUpMessage={followUpMessage}
@@ -143,6 +144,7 @@ useEffect(() => {
 
 						<Grid size={{ xs: 12, sm: 6 }}>
 							<DataGrid
+								Translation={Translation}
 								rowData={rowData}
 								setRowData={setRowData}
 								clearAllData={clearAllData}
@@ -159,20 +161,16 @@ useEffect(() => {
 						style={{ marginTop: "14px" }}
 					>
 						<Grid item size={12}>
-							<h3 style={{ marginTop: 0 }}>Send your message</h3>
+							<h3 style={{ marginTop: 0 }}>{Translation.textbankrSendMsg}</h3>
 
 							{!isMobile ? (
 								<>
 									<p style={{ marginTop: 0, fontSize: "small" }}>
-										It’s easiest to send the messages from a mobile. If you
-										chose to do that, there’s also a one-click to call button
-										for each contact, so you don’t need to type the numbers in
-										to ring them. However, if you’d prefer, you can send your
-										message from right here in your browser.<br /><br />
-										If you are hosting a session, you can use the button below to divvy up the contacts between attendees.
+										{Translation.textbankrSendBlurb}
 									</p>
 
 									<GenerateMobileData
+										Translation={Translation}
 										rowData={rowData}
 										isMobile={isMobile}
 										followUpMessage={followUpMessage}
@@ -182,7 +180,10 @@ useEffect(() => {
 
 									<Button
 										variant="contained"
-										sx={{ ...BtnStyleSmall, marginLeft: isMobile ? 0 : "20px" }}
+										sx={{
+											...BtnStyleSmall,
+											marginLeft: isMobile ? 0 : "20px",
+										}}
 										disabled={rowData.length == 0}
 										onClick={() =>
 											document
@@ -190,48 +191,22 @@ useEffect(() => {
 												.scrollIntoView({ behavior: "smooth" })
 										}
 									>
-										Send from browser{" "}
+										{Translation.textbankrSendBrowser}
 									</Button>
 								</>
 							) : (
 								<>
 									<p style={{ marginTop: 0, fontSize: "small" }}>
-										Add in your contacts and a template message above, and you
-										can use the buttons below to call, WhatsApp, and text them:
+										{Translation.textbankrFallback}
 									</p>
-
 								</>
 							)}
 						</Grid>
-
-						<div style={{ display: "none" }}>
-							<Grid item size={6}>
-								<Button
-									variant="contained"
-									disabled={rowData.length == 0}
-									onClick={() =>
-										document
-											.getElementById("generatedLinks")
-											.scrollIntoView({ behavior: "smooth" })
-									}
-								>
-									Go to links
-								</Button>
-							</Grid>
-							<Grid item size={6}>
-								<GenerateMobileData
-									rowData={rowData}
-									isMobile={isMobile}
-									followUpMessage={followUpMessage}
-									noAnswerMessage={noAnswerMessage}
-									extensionCode={extensionCode}
-								/>
-							</Grid>
-						</div>
 					</Grid>
 				</Box>
 
 				<GeneratedLinks
+					Translation={Translation}
 					extensionCode={extensionCode}
 					rowData={rowData}
 					isMobile={isMobile}

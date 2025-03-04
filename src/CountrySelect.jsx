@@ -4,13 +4,15 @@ import { SelectFieldStyle, TextFieldStyle } from "./MUIShared";
 
 // Hardcoded list of countries
 export const countries = [
-	{ name: "United Kingdom", emoji: "🇬🇧", code: "+44" },
-	{ name: "Ireland", emoji: "🇮🇪", code: "+353" },
-	{ name: "United States", emoji: "🇺🇸", code: "+1" },
-	{ name: "Canada", emoji: "🇨🇦", code: "+1" },
-	{ name: "Spain", emoji: "🇪🇸", code: "+34" },
-	{ name: "France", emoji: "🇫🇷", code: "+33" },
-	{ name: "Italy", emoji: "🇮🇹", code: "+39" },
+	{ name: "United Kingdom", emoji: "🇬🇧", code: "+44" }, // English (unchanged)
+	{ name: "Éire/Ireland", emoji: "🇮🇪", code: "+353" }, // Irish for Ireland
+	{ name: "United States", emoji: "🇺🇸", code: "+1" }, // English (unchanged)
+	{ name: "Canada", emoji: "🇨🇦", code: "+1" }, // English/French (same in both)
+	{ name: "España", emoji: "🇪🇸", code: "+34" }, // Spanish for Spain
+	{ name: "France", emoji: "🇫🇷", code: "+33" }, // French (unchanged)
+	{ name: "Italia", emoji: "🇮🇹", code: "+39" }, // Italian for Italy
+	{ name: "België", emoji: "🇧🇪", code: "+32" }, // Dutch for Belgium (most spoken)
+	{ name: "Ελλάδα", emoji: "🇬🇷", code: "+30" }, // Greek for Greece
 ];
 
 const CountrySelect = ({extensionCode, setExtensionCode}) => {
