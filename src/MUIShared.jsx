@@ -30,6 +30,19 @@ export const LinkBtn = {
 	"&:disabled": { color: "grey" },
 };
 
+export const LinkBtnLarge = {
+	margin: "5px",
+	padding: '10px',
+	fontSize: "medium",
+	fontWeight: "600",
+	borderRadius: "10px",
+	color: "#126466",
+	backgroundColor: "#D8B08B",
+	"&:hover, &:active": { backgroundColor: "#FFCB9A", color: "#126466" },
+	"&:disabled": { color: "grey" },
+};
+
+
 export const TextFieldStyle = {
 	marginBottom: "12px",
 

@@ -24,6 +24,44 @@ background-color: #f4fffc;
 }
 
 
+.loading {
+  font-weight: bold;
+  font-size: 90px;
+  color: rgba(0, 0, 0, 0.2);
+  display: inline-block;
+  position: relative;
+  width: 1ch;
+  /* Dynamically fit up to 4 characters wide */
+  text-align: left;
+  /* Align dots to the left edge */
+  margin: 0 auto;
+  /* Ensure pseudo-element is positioned correctly */
+}
+
+.loading::after {
+  content: '.';
+  /* Default content is a single dot */
+  animation: dots 0.2s steps(3, end) infinite;
+  /* Use steps for discrete changes */
+}
+
+@keyframes dots {
+  0% {
+    content: '.';
+  }
+
+  33% {
+    content: '..';
+  }
+
+  66% {
+    content: '...';
+  }
+
+  100% {
+    content: '.';
+  }
+}
 #header {
   width: 100%;
   color: white;
@@ -104,7 +142,12 @@ background-color: #f4fffc;
     flex-direction: column;
 }
 
-
+.card-body {
+  height: 400px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
 
 
 

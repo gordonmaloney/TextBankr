@@ -1,4 +1,5 @@
 import React from "react";
+import SwipeCard from "./Swiper";
 import { Button } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import { LinkBtn } from "./MUIShared";
@@ -147,6 +148,7 @@ const GeneratedLinks = ({
 				>
 					Edit template messages and data
 				</Button>
+
 				<Grid container spacing={0}>
 					{rowData
 						.filter((row) => row.name.trim() !== "" || row.number.trim() !== "") // Filter rows
@@ -312,6 +314,21 @@ const GeneratedLinks = ({
 							</Grid>
 						))}
 				</Grid>
+
+				<div style={{
+					display: isMobile ? "block" : "none",
+					marginTop: '10px'
+				}}>
+					<center>
+						<SwipeCard
+							rowData={rowData}
+							extensionCode={extensionCode}
+							noAnswerMessage={noAnswerMessage}
+							followUpMessage={followUpMessage}
+							isMobile={isMobile}
+						/>
+					</center>
+				</div>
 			</div>
 		);
 	} else {
