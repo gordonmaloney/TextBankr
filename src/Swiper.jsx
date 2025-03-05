@@ -222,7 +222,7 @@ return (
 			}}
 		>
 			<center>
-				<h3 style={{ margin: "5px" }}>
+				<h3 className="sarala-bold" style={{ margin: "5px", lineHeight: '20px' }}>
 					Swipe left or right to navigate through your contacts
 				</h3>
 			</center>

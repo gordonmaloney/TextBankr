@@ -132,23 +132,34 @@ const GeneratedLinks = ({
 	if (rowData.length > 0) {
 		return (
 			<div id="generatedLinks" style={{ minHeight: "80vh" }}>
-				<h2 className="sarala-bold" style={{ marginBottom: "-18px" }}>
-					Your Links:
-				</h2>
-				<Button
-					variant="contained"
-					size="small"
-					style={{ display: "none" }}
-					disabled={rowData.length == 0}
-					onClick={() =>
-						document
-							.getElementById("header")
-							.scrollIntoView({ behavior: "smooth" })
-					}
-				>
-					Edit template messages and data
-				</Button>
+				<div
+					style={{
+						display: "flex",
+						flexDirection: "row",
+						justifyContent: "space-between",
+						alignContent: 'center',
+						width: "100%",
+					}}>
+					<h2 className="sarala-bold"
+					style={{margin: 0}}
+					>
+						Your Links:
+					</h2>
 
+					<div
+						style={{
+							display: isMobile ? "inline-block" : "none",
+						}}
+					>
+							<SwipeCard
+								rowData={rowData}
+								extensionCode={extensionCode}
+								noAnswerMessage={noAnswerMessage}
+								followUpMessage={followUpMessage}
+								isMobile={isMobile}
+							/>
+					</div>
+				</div>
 				<Grid container spacing={0}>
 					{rowData
 						.filter((row) => row.name.trim() !== "" || row.number.trim() !== "") // Filter rows
@@ -315,10 +326,12 @@ const GeneratedLinks = ({
 						))}
 				</Grid>
 
-				<div style={{
-					display: isMobile ? "block" : "none",
-					marginTop: '10px'
-				}}>
+				<div
+					style={{
+						display: isMobile ? "block" : "none",
+						marginTop: "10px",
+					}}
+				>
 					<center>
 						<SwipeCard
 							rowData={rowData}
