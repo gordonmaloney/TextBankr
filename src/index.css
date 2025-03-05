@@ -151,6 +151,15 @@ background-color: #f4fffc;
 
 
 
+.swipe-explainer {
+  opacity: 1;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.swipe-explainer.fade-out {
+  opacity: 0;
+}
+
 .overlay {
   position: fixed;
   top: 0;
