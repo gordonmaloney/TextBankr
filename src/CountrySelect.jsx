@@ -13,6 +13,7 @@ export const countries = [
 	{ name: "Italia", emoji: "🇮🇹", code: "+39" }, // Italian for Italy
 	{ name: "België", emoji: "🇧🇪", code: "+32" }, // Dutch for Belgium (most spoken)
 	{ name: "Ελλάδα", emoji: "🇬🇷", code: "+30" }, // Greek for Greece
+	{ name: "India/भारत", emoji: "🇮🇳", code: "+91" },
 ];
 
 const CountrySelect = ({extensionCode, setExtensionCode}) => {

@@ -1,5 +1,7 @@
 import { useState, useMemo } from "react";
 import { countries } from "../CountrySelect";
+import { SignalTelegramEnabled } from "../Settings";
+
 
 // Utility functions
 import {
@@ -12,7 +14,10 @@ import {
 	formatForTel,
 } from "../utils/contactUtils";
 
-const useContactLinks = (extensionCode, enableSignal = true) => {
+const useContactLinks = (
+	extensionCode,
+	enableSignal = SignalTelegramEnabled
+) => {
 	const [showSignalLinks, setShowSignalLinks] = useState(false);
 	const [signalModal, setSignalModal] = useState(false);
 
