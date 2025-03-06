@@ -1,10 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import SwipeCard from "./Swiper";
 import { Button } from "@mui/material";
 import Grid from "@mui/material/Grid2";
-import { LinkBtn } from "./MUIShared";
+import { BtnStyleSmall, LinkBtn } from "./MUIShared";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faWhatsapp } from "@fortawesome/free-brands-svg-icons";
+import { faWhatsapp, faSignalMessenger } from "@fortawesome/free-brands-svg-icons";
 import { faPhone, faSms } from "@fortawesome/free-solid-svg-icons";
 import { countries } from "./CountrySelect";
 
@@ -17,70 +17,98 @@ const GeneratedLinks = ({
 	noAnswerMessage,
 	extensionCode,
 }) => {
-	// Utility function to clean and validate phone numbers
-	const validateAndFormatNumber = (number) => {
-		// Remove all non-numeric characters except +
-		const cleanedNumber = number.replace(/[^0-9+]/g, "");
 
-		console.log("cleaned number: ", cleanedNumber);
 
-		// If the number starts with +, assume it's already a valid international number
-		if (cleanedNumber.startsWith("+")) {
-			return cleanedNumber;
+	const enableSignal = true;
+const [showSignalLinks, setShowSignalLinks] = useState(false);
+
+// Utility function to clean and validate phone numbers
+const validateAndFormatNumber = (number) => {
+	// Remove all non-numeric characters except +
+	const cleanedNumber = number.replace(/[^0-9+]/g, "");
+
+	console.log("cleaned number: ", cleanedNumber);
+
+	// If the number starts with +, assume it's already a valid international number
+	if (cleanedNumber.startsWith("+")) {
+		return cleanedNumber;
+	}
+
+	for (const country of countries) {
+		if (cleanedNumber.startsWith(country.code.replace("+", ""))) {
+			console.log(`Starts with ${country.code} (${country.name})`);
+			return `+${cleanedNumber}`;
 		}
+	}
 
-		for (const country of countries) {
-			if (cleanedNumber.startsWith(country.code.replace("+", ""))) {
-				console.log(`Starts with ${country.code} (${country.name})`);
-				return `+${cleanedNumber}`;
-			}
-		}
+	// If the number starts with 0, assume it's a UK local number
+	if (cleanedNumber.startsWith("0")) {
+		console.log("starts with 0", `+${extensionCode}${cleanedNumber.slice(1)}`);
+		return `+${extensionCode}${cleanedNumber.slice(1)}`; // Replace leading 0 with +44
+	}
 
-		// If the number starts with 0, assume it's a UK local number
-		if (cleanedNumber.startsWith("0")) {
-			console.log(
-				"starts with 0",
-				`+${extensionCode}${cleanedNumber.slice(1)}`
+	// If the number is already in bare format (e.g., 7903123123), assume it's UK and add +44
+	if (/^[0-9]{10}$/.test(cleanedNumber)) {
+		return `${extensionCode}${cleanedNumber}`;
+	}
+
+	// If it doesn't match any valid format, return null
+	return null;
+};
+
+const generateWhatsAppLink = (name, number, message) => {
+	const validatedNumber = validateAndFormatNumber(number);
+	if (!validatedNumber) return null; // Invalid number, skip generating the link
+
+	const firstName = name.split(" ")[0]; // Extract first name
+	const encodedMessage = encodeURIComponent(`Hey ${firstName}! ${message}`);
+	return `https://api.whatsapp.com/send?phone=${validatedNumber.replace(
+		"+",
+		""
+	)}&text=${encodedMessage}`;
+};
+
+const generateSMSLink = (name, number, message) => {
+	console.log("generating sms link :", number);
+	const validatedNumber = validateAndFormatNumber(number);
+	if (!validatedNumber) return null; // Invalid number, skip generating the link
+
+	const firstName = name.split(" ")[0];
+
+	// Replace +44 with 0 for SMS formatting
+	const formattedNumber = validatedNumber.startsWith("+44")
+		? `0${validatedNumber.slice(3)}`
+		: validatedNumber;
+
+	const encodedMessage = encodeURIComponent(`Hey ${firstName}! ${message}`);
+	return `sms:${formattedNumber}?&body=${encodedMessage}`;
+};
+
+const generateSignalLink = (number) => {
+	const validatedNumber = validateAndFormatNumber(number);
+	if (!validatedNumber) return null; // Invalid number, skip
+
+	return `https://signal.me/#p/${validatedNumber}`;
+};
+	const handleSignalClick = (number, message) => {
+		const signalLink = generateSignalLink(number);
+		if (!signalLink) return;
+
+		// Copy message to clipboard
+		navigator.clipboard
+			.writeText(message)
+			.then(() => {
+				console.log("Message copied to clipboard!");
+
+				// Open Signal link
+				window.open(signalLink, "_blank");
+			})
+			.catch((err) =>
+				console.error("Failed to copy message to clipboard:", err)
 			);
-			return `+${extensionCode}${cleanedNumber.slice(1)}`; // Replace leading 0 with +44
-		}
-
-		// If the number is already in bare format (e.g., 7903123123), assume it's UK and add +44
-		if (/^[0-9]{10}$/.test(cleanedNumber)) {
-			return `${extensionCode}${cleanedNumber}`;
-		}
-
-		// If it doesn't match any valid format, return null
-		return null;
 	};
 
-	const generateWhatsAppLink = (name, number, message) => {
-		const validatedNumber = validateAndFormatNumber(number);
-		if (!validatedNumber) return null; // Invalid number, skip generating the link
 
-		const firstName = name.split(" ")[0]; // Extract first name
-		const encodedMessage = encodeURIComponent(`Hey ${firstName}! ${message}`);
-		return `https://api.whatsapp.com/send?phone=${validatedNumber.replace(
-			"+",
-			""
-		)}&text=${encodedMessage}`;
-	};
-
-	const generateSMSLink = (name, number, message) => {
-		console.log("generating sms link :", number);
-		const validatedNumber = validateAndFormatNumber(number);
-		if (!validatedNumber) return null; // Invalid number, skip generating the link
-
-		const firstName = name.split(" ")[0];
-
-		// Replace +44 with 0 for SMS formatting
-		const formattedNumber = validatedNumber.startsWith("+44")
-			? `0${validatedNumber.slice(3)}`
-			: validatedNumber;
-
-		const encodedMessage = encodeURIComponent(`Hey ${firstName}! ${message}`);
-		return `sms:${formattedNumber}?&body=${encodedMessage}`;
-	};
 
 	const formatForTel = (number) => {
 		const validatedNumber = validateAndFormatNumber(number);
@@ -129,6 +157,17 @@ const GeneratedLinks = ({
 		return isLandline;
 	};
 
+
+
+
+	const [signalModal, setSignalModal] = useState(false)
+	const OpenSignalModal = () => {
+		console.log('showing signal links')
+
+		setSignalModal(true)
+	}
+
+
 	if (rowData.length > 0) {
 		return (
 			<div id="generatedLinks" style={{ minHeight: "80vh" }}>
@@ -137,27 +176,40 @@ const GeneratedLinks = ({
 						display: "flex",
 						flexDirection: "row",
 						justifyContent: "space-between",
-						alignContent: 'center',
+						alignContent: "center",
 						width: "100%",
-					}}>
-					<h2 className="sarala-bold"
-					style={{margin: 0}}
-					>
+					}}
+				>
+					<h2 className="sarala-bold" style={{ margin: 0 }}>
 						Your Links:
 					</h2>
+
+					<Button
+						style={{
+							...BtnStyleSmall,
+							display: enableSignal ? "block" : "none",
+						}}
+						onClick={() => {
+							!showSignalLinks && OpenSignalModal();
+							setShowSignalLinks(!showSignalLinks);
+						}}
+					>
+						{!showSignalLinks ? "Show" : "Hide"} Signal Links
+					</Button>
 
 					<div
 						style={{
 							display: isMobile ? "inline-block" : "none",
 						}}
 					>
-							<SwipeCard
-								rowData={rowData}
-								extensionCode={extensionCode}
-								noAnswerMessage={noAnswerMessage}
-								followUpMessage={followUpMessage}
-								isMobile={isMobile}
-							/>
+						<SwipeCard
+							rowData={rowData}
+							extensionCode={extensionCode}
+							noAnswerMessage={noAnswerMessage}
+							followUpMessage={followUpMessage}
+							isMobile={isMobile}
+							showSignalLinks={showSignalLinks}
+						/>
 					</div>
 				</div>
 				<Grid container spacing={0}>
@@ -259,6 +311,27 @@ const GeneratedLinks = ({
 														SMS
 													</Button>
 												</a>
+
+												{showSignalLinks && !isLandline(row.number) && (
+													<Button
+														sx={LinkBtn}
+														onClick={() =>
+															handleSignalClick(
+																row.number,
+																`Hey ${
+																	row.name.split(" ")[0]
+																}! ${noAnswerMessage}`
+															)
+														}
+													>
+														<FontAwesomeIcon
+															icon={faSignalMessenger} // Replace this with a Signal icon if you have one
+															size="2x"
+															style={{ marginRight: "5px" }}
+														/>
+														Signal
+													</Button>
+												)}
 											</div>
 										) : (
 											<center>
@@ -316,6 +389,26 @@ const GeneratedLinks = ({
 														SMS
 													</Button>
 												</a>
+												{showSignalLinks && !isLandline(row.number) && (
+													<Button
+														sx={LinkBtn}
+														onClick={() =>
+															handleSignalClick(
+																row.number,
+																`Hey ${
+																	row.name.split(" ")[0]
+																}! ${followUpMessage}`
+															)
+														}
+													>
+														<FontAwesomeIcon
+															icon={faSignalMessenger} // Replace this with a Signal icon if you have one
+															size="2x"
+															style={{ marginRight: "5px" }}
+														/>
+														Signal
+													</Button>
+												)}
 											</div>
 										) : (
 											<></>
@@ -342,6 +435,68 @@ const GeneratedLinks = ({
 						/>
 					</center>
 				</div>
+
+				{signalModal && (
+					<div
+						onClick={() => setSignalModal(false)}
+						style={{
+							position: "fixed",
+							top: 0,
+							left: 0,
+							width: "100vw",
+							height: "100vh",
+							backgroundColor: "rgba(0, 0, 0, 0.8)",
+							display: "flex",
+							justifyContent: "center",
+							alignItems: "center",
+							zIndex: 1000,
+						}}
+					>
+						<div
+							onClick={(e) => e.stopPropagation()}
+							style={{
+								backgroundColor: "#fff",
+								padding: "10px",
+								borderRadius: "10px",
+								textAlign: "center",
+								width: "80%",
+								maxWidth: "800px",
+							}}
+						>
+							<h2 style={{ marginBottom: "12px", marginTop: "12px" }}>
+								Using Signal
+							</h2>
+
+							<p
+								style={{
+									textAlign: "left",
+									padding: "0 20px",
+									marginTop: 0,
+									zIndex: 5,
+									position: "relative",
+								}}
+							>
+
+								Please note that Signal doesn't allow 'pre-filled' links like WhatsApp or SMS does. To get around that, clicking the 'Signal' button on a contact will do two things:
+								<ol>
+									<li>Open the Signal app and start a conversation with your contact (provided they're on Signal and can be messaged!)</li>
+									<li>Copy the relevant message to your clipboard</li>
+								</ol>
+								That means you just need to click the button to start the conversation with your contact, and then <b>paste</b> your message in.
+
+							</p>
+
+							<center>
+								<Button
+									style={BtnStyleSmall}
+									onClick={() => setSignalModal(false)}
+								>
+									Got it!
+								</Button>
+							</center>
+						</div>
+					</div>
+				)}
 			</div>
 		);
 	} else {

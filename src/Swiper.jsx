@@ -4,7 +4,10 @@ import { Button } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import { BtnStyleSmall, LinkBtn, LinkBtnLarge } from "./MUIShared";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faWhatsapp } from "@fortawesome/free-brands-svg-icons";
+import {
+	faWhatsapp,
+	faSignalMessenger,
+} from "@fortawesome/free-brands-svg-icons";
 import { faPhone, faSms } from "@fortawesome/free-solid-svg-icons";
 import { countries } from "./CountrySelect";
 import ReactLoading from "react-loading";
@@ -15,6 +18,7 @@ const SwipeCard = ({
 	followUpMessage,
 	noAnswerMessage,
 	isMobile,
+	showSignalLinks,
 }) => {
 	const [index, setIndex] = useState(0);
 
@@ -133,6 +137,30 @@ const SwipeCard = ({
 		return `sms:${formattedNumber}?&body=${encodedMessage}`;
 	};
 
+	const generateSignalLink = (number) => {
+		const validatedNumber = validateAndFormatNumber(number);
+		if (!validatedNumber) return null; // Invalid number, skip
+
+		return `https://signal.me/#p/${validatedNumber}`;
+	};
+	const handleSignalClick = (number, message) => {
+		const signalLink = generateSignalLink(number);
+		if (!signalLink) return;
+
+		// Copy message to clipboard
+		navigator.clipboard
+			.writeText(message)
+			.then(() => {
+				console.log("Message copied to clipboard!");
+
+				// Open Signal link
+				window.open(signalLink, "_blank");
+			})
+			.catch((err) =>
+				console.error("Failed to copy message to clipboard:", err)
+			);
+	};
+
 	const formatForTel = (number) => {
 		const validatedNumber = validateAndFormatNumber(number);
 		if (!validatedNumber) return null; // Invalid number, skip formatting
@@ -180,285 +208,334 @@ const SwipeCard = ({
 		return isLandline;
 	};
 
+	const [isVisible, setIsVisible] = useState(false);
+	const [isFading, setIsFading] = useState(false);
 
-const [isVisible, setIsVisible] = useState(false);
-const [isFading, setIsFading] = useState(false);
+	useEffect(() => {
+		if (!isVisible && isOpen) {
+			setIsVisible(true);
+		}
+	}, [isOpen]);
 
-useEffect(() => {
-	if (!isVisible && isOpen) {
-		setIsVisible(true);
-	}
-}, [isOpen]);
+	useEffect(() => {
+		if (isOpen) {
+			// Reset fading state if reopening
+			setIsFading(false);
 
-useEffect(() => {
-	if (isOpen) {
-		// Reset fading state if reopening
-		setIsFading(false);
+			// Hide element after 4 seconds
+			const timer = setTimeout(() => {
+				setIsFading(true); // Start fade-out effect
+				setTimeout(() => setIsVisible(false), 500); // Wait for fade-out to complete
+			}, 4000);
 
-		// Hide element after 4 seconds
-		const timer = setTimeout(() => {
-			setIsFading(true); // Start fade-out effect
-			setTimeout(() => setIsVisible(false), 500); // Wait for fade-out to complete
-		}, 4000);
+			return () => clearTimeout(timer); // Cleanup timer
+		}
+	}, [isOpen]);
 
-		return () => clearTimeout(timer); // Cleanup timer
-	}
-}, [isOpen]);
-
-return (
-	<>
-		<div
-			className={`swipe-explainer ${isFading ? "fade-out" : ""}`}
-			style={{
-				zIndex: 10000,
-				position: "fixed",
-				top: 20,
-				left: 0,
-				width: "80%",
-				margin: "0 10%",
-				backgroundColor: "white",
-				borderRadius: "10px",
-				display: isVisible && isOpen ? "block" : "none",
-			}}
-		>
-			<center>
-				<h3 className="sarala-bold" style={{ margin: "5px", lineHeight: '20px' }}>
-					Swipe left or right to navigate through your contacts
-				</h3>
-			</center>
-		</div>
-
-		<Button
-			style={{
-				// display: "none",
-				...BtnStyleSmall,
-			}}
-			className="open-button"
-			onClick={handleOpenOverlay}
-		>
-			View as cards
-		</Button>
-
-		{isOpen && (
-			<div className="overlay" onClick={handleOutsideClick}>
-				<div
-					className="card-container"
-					ref={overlayRef}
-					onClick={(e) => e.stopPropagation()} // Prevent closing when clicking on the card
-				>
-					<motion.div
-						className={index < rowData.length ? "card" : "end-card"}
-						style={{
-							x,
-							rotate,
-							zIndex: 1,
-							scale: 1,
-							opacity: 1,
-							boxShadow: "0 8px 30px rgba(0, 0, 0, 0.3)",
-						}}
-						drag="x"
-						dragConstraints={{ left: 0, right: 0 }}
-						onDrag={(event, info) => {
-							const absOffset = Math.abs(info.offset.x) * -1; // Make offset always negative
-							setOffset(absOffset); // Update offset state
-						}}
-						onDragEnd={handleDragEnd}
-						initial={{ opacity: 1, x: 300 }} /* SWIPE IN FROM RIGHT */
-						animate={{ opacity: 1, x: 0 }} /* SWIPE IN ANIMATION */
-						transition={{ duration: 0.3 }}
+	return (
+		<>
+			<div
+				className={`swipe-explainer ${isFading ? "fade-out" : ""}`}
+				style={{
+					zIndex: 10000,
+					position: "fixed",
+					top: 20,
+					left: 0,
+					width: "80%",
+					margin: "0 10%",
+					backgroundColor: "white",
+					borderRadius: "10px",
+					display: isVisible && isOpen ? "block" : "none",
+				}}
+			>
+				<center>
+					<h3
+						className="sarala-bold"
+						style={{ margin: "5px", lineHeight: "20px" }}
 					>
-						{loading ? (
-							<div style={{ textAlign: "left" }}>
-								<h2 className="loading"></h2>
-							</div>
-						) : (
-							<>
-								{index < rowData.length ? (
-									<div className="card-content">
-										<h4 className="card-header">
-											Contact {index + 1} of {rowData.length}
-										</h4>
+						Swipe left or right to navigate through your contacts
+					</h3>
+				</center>
+			</div>
 
-										<div className="card-body">
-											<div>
-												<h2 style={{ marginBottom: "0" }}>
-													{rowData[index].name}
-												</h2>
-												<p style={{ marginTop: "0" }}>
-													{rowData[index].number}
-												</p>
-												{isMobile && formatForTel(rowData[index].number) && (
-													<center>
-														<a
-															href={`tel:${formatForTel(
-																rowData[index].number
-															)}`}
-															target="_blank"
-															rel="noopener noreferrer"
+			<Button
+				style={{
+					// display: "none",
+					...BtnStyleSmall,
+				}}
+				className="open-button"
+				onClick={handleOpenOverlay}
+			>
+				View as cards
+			</Button>
+
+			{isOpen && (
+				<div className="overlay" onClick={handleOutsideClick}>
+					<div
+						className="card-container"
+						ref={overlayRef}
+						onClick={(e) => e.stopPropagation()} // Prevent closing when clicking on the card
+					>
+						<motion.div
+							className={index < rowData.length ? "card" : "end-card"}
+							style={{
+								x,
+								rotate,
+								zIndex: 1,
+								scale: 1,
+								opacity: 1,
+								boxShadow: "0 8px 30px rgba(0, 0, 0, 0.3)",
+							}}
+							drag="x"
+							dragConstraints={{ left: 0, right: 0 }}
+							onDrag={(event, info) => {
+								const absOffset = Math.abs(info.offset.x) * -1; // Make offset always negative
+								setOffset(absOffset); // Update offset state
+							}}
+							onDragEnd={handleDragEnd}
+							initial={{ opacity: 1, x: 300 }} /* SWIPE IN FROM RIGHT */
+							animate={{ opacity: 1, x: 0 }} /* SWIPE IN ANIMATION */
+							transition={{ duration: 0.3 }}
+						>
+							{loading ? (
+								<div style={{ textAlign: "left" }}>
+									<h2 className="loading"></h2>
+								</div>
+							) : (
+								<>
+									{index < rowData.length ? (
+										<div className="card-content">
+											<h4 className="card-header">
+												Contact {index + 1} of {rowData.length}
+											</h4>
+
+											<div className="card-body">
+												<div>
+													<h2 style={{ marginBottom: "0" }}>
+														{rowData[index].name}
+													</h2>
+													<p style={{ marginTop: "0" }}>
+														{rowData[index].number}
+													</p>
+													{isMobile && formatForTel(rowData[index].number) && (
+														<center>
+															<a
+																href={`tel:${formatForTel(
+																	rowData[index].number
+																)}`}
+																target="_blank"
+																rel="noopener noreferrer"
+															>
+																<Button sx={LinkBtnLarge}>
+																	<FontAwesomeIcon
+																		icon={faPhone}
+																		size="2x"
+																		style={{ marginRight: "5px" }}
+																	/>
+																	Call
+																</Button>
+															</a>
+														</center>
+													)}
+												</div>
+												<Grid
+													size={12}
+													key={index}
+													style={{
+														paddingTop: "18px",
+														paddingBottom: "18px",
+														borderBottom: "1px solid grey",
+													}}
+												>
+													<Grid container spacing={1}>
+														<Grid
+															size={{
+																xs: followUpMessage ? 6 : 12,
+																sm: 3,
+																md: 2,
+																xl: 1,
+															}}
 														>
-															<Button sx={LinkBtnLarge}>
-																<FontAwesomeIcon
-																	icon={faPhone}
-																	size="2x"
-																	style={{ marginRight: "5px" }}
-																/>
-																Call
-															</Button>
-														</a>
-													</center>
-												)}
-											</div>
-											<Grid
-												size={12}
-												key={index}
-												style={{
-													paddingTop: "18px",
-													paddingBottom: "18px",
-													borderBottom: "1px solid grey",
-												}}
-											>
-												<Grid container spacing={1}>
-													<Grid
-														size={{
-															xs: followUpMessage ? 6 : 12,
-															sm: 3,
-															md: 2,
-															xl: 1,
-														}}
-													>
-														{!rowData[index].number ? (
-															<></>
-														) : !isLandline(rowData[index].number) ? (
-															<div
-																style={{
-																	width: "100%",
-																	display: "flex",
-																	flexDirection: "column",
-																	justifyItems: "center",
-																	alignItems: "center",
-																}}
-															>
-																<b>Template 1</b>
+															{!rowData[index].number ? (
+																<></>
+															) : !isLandline(rowData[index].number) ? (
+																<div
+																	style={{
+																		width: "100%",
+																		display: "flex",
+																		flexDirection: "column",
+																		justifyItems: "center",
+																		alignItems: "center",
+																	}}
+																>
+																	<b>Template 1</b>
 
-																<a
-																	href={generateWhatsAppLink(
-																		rowData[index].name,
-																		rowData[index].number,
-																		noAnswerMessage
-																	)}
-																	target="_blank"
-																	rel="noopener noreferrer"
-																>
-																	<Button sx={LinkBtn}>
-																		<FontAwesomeIcon
-																			icon={faWhatsapp}
-																			size="2x"
-																			style={{ marginRight: "5px" }}
-																		/>
-																		WhatsApp
-																	</Button>
-																</a>
-																<a
-																	href={generateSMSLink(
-																		rowData[index].name,
-																		rowData[index].number,
-																		noAnswerMessage
-																	)}
-																	rel="noopener noreferrer"
-																>
-																	<Button sx={LinkBtn}>
-																		<FontAwesomeIcon
-																			icon={faSms}
-																			size="2x"
-																			style={{ marginRight: "5px" }}
-																		/>
-																		SMS
-																	</Button>
-																</a>
-															</div>
-														) : (
-															<center>
-																<em>Not textable.</em>
-															</center>
-														)}
-													</Grid>
+																	<a
+																		href={generateWhatsAppLink(
+																			rowData[index].name,
+																			rowData[index].number,
+																			noAnswerMessage
+																		)}
+																		target="_blank"
+																		rel="noopener noreferrer"
+																	>
+																		<Button sx={LinkBtn}>
+																			<FontAwesomeIcon
+																				icon={faWhatsapp}
+																				size="2x"
+																				style={{ marginRight: "5px" }}
+																			/>
+																			WhatsApp
+																		</Button>
+																	</a>
+																	<a
+																		href={generateSMSLink(
+																			rowData[index].name,
+																			rowData[index].number,
+																			noAnswerMessage
+																		)}
+																		rel="noopener noreferrer"
+																	>
+																		<Button sx={LinkBtn}>
+																			<FontAwesomeIcon
+																				icon={faSms}
+																				size="2x"
+																				style={{ marginRight: "5px" }}
+																			/>
+																			SMS
+																		</Button>
+																	</a>
 
-													<Grid size={{ xs: 6, sm: 3, md: 2, xl: 1 }}>
-														{!rowData[index].number ? (
-															<></>
-														) : !isLandline(rowData[index].number) &&
-														  followUpMessage !== "" ? (
-															<div
-																style={{
-																	width: "100%",
-																	display: "flex",
-																	flexDirection: "column",
-																	justifyItems: "center",
-																	alignItems: "center",
-																}}
-															>
-																<b>Template 2</b>
-																<a
-																	href={generateWhatsAppLink(
-																		rowData[index].name,
-																		rowData[index].number,
-																		followUpMessage
-																	)}
-																	target="_blank"
-																	rel="noopener noreferrer"
+																	{showSignalLinks &&
+																		!isLandline(rowData[index].number) && (
+																			<Button
+																				sx={LinkBtn}
+																				onClick={() =>
+																					handleSignalClick(
+																						rowData[index].number,
+																						`Hey ${
+																							rowData[index].name.split(" ")[0]
+																						}! ${noAnswerMessage}`
+																					)
+																				}
+																			>
+																				<FontAwesomeIcon
+																					icon={faSignalMessenger} // Replace this with a Signal icon if you have one
+																					size="2x"
+																					style={{ marginRight: "5px" }}
+																				/>
+																				Signal
+																			</Button>
+																		)}
+																</div>
+															) : (
+																<center>
+																	<em>Not textable.</em>
+																</center>
+															)}
+														</Grid>
+
+														<Grid size={{ xs: 6, sm: 3, md: 2, xl: 1 }}>
+															{!rowData[index].number ? (
+																<></>
+															) : !isLandline(rowData[index].number) &&
+															  followUpMessage !== "" ? (
+																<div
+																	style={{
+																		width: "100%",
+																		display: "flex",
+																		flexDirection: "column",
+																		justifyItems: "center",
+																		alignItems: "center",
+																	}}
 																>
-																	<Button sx={LinkBtn}>
-																		<FontAwesomeIcon
-																			icon={faWhatsapp}
-																			size="2x"
-																			style={{ marginRight: "5px" }}
-																		/>
-																		WhatsApp
-																	</Button>
-																</a>
-																<a
-																	href={generateSMSLink(
-																		rowData[index].name,
-																		rowData[index].number,
-																		followUpMessage
-																	)}
-																	rel="noopener noreferrer"
-																>
-																	<Button sx={LinkBtn}>
-																		<FontAwesomeIcon
-																			icon={faSms}
-																			size="2x"
-																			style={{ marginRight: "5px" }}
-																		/>
-																		SMS
-																	</Button>
-																</a>
-															</div>
-														) : (
-															<></>
-														)}
+																	<b>Template 2</b>
+																	<a
+																		href={generateWhatsAppLink(
+																			rowData[index].name,
+																			rowData[index].number,
+																			followUpMessage
+																		)}
+																		target="_blank"
+																		rel="noopener noreferrer"
+																	>
+																		<Button sx={LinkBtn}>
+																			<FontAwesomeIcon
+																				icon={faWhatsapp}
+																				size="2x"
+																				style={{ marginRight: "5px" }}
+																			/>
+																			WhatsApp
+																		</Button>
+																	</a>
+																	<a
+																		href={generateSMSLink(
+																			rowData[index].name,
+																			rowData[index].number,
+																			followUpMessage
+																		)}
+																		rel="noopener noreferrer"
+																	>
+																		<Button sx={LinkBtn}>
+																			<FontAwesomeIcon
+																				icon={faSms}
+																				size="2x"
+																				style={{ marginRight: "5px" }}
+																			/>
+																			SMS
+																		</Button>
+																	</a>
+
+																	{showSignalLinks &&
+																		!isLandline(rowData[index].number) && (
+																			<Button
+																				sx={LinkBtn}
+																				onClick={() =>
+																					handleSignalClick(
+																						rowData[index].number,
+																						`Hey ${
+																							rowData[index].name.split(" ")[0]
+																						}! ${followUpMessage}`
+																					)
+																				}
+																			>
+																				<FontAwesomeIcon
+																					icon={faSignalMessenger} // Replace this with a Signal icon if you have one
+																					size="2x"
+																					style={{ marginRight: "5px" }}
+																				/>
+																				Signal
+																			</Button>
+																		)}
+																</div>
+															) : (
+																<></>
+															)}
+														</Grid>
 													</Grid>
 												</Grid>
-											</Grid>
+											</div>
 										</div>
-									</div>
-								) : (
-									<div className="end-card-content">
-										<h3>You've reached the end of your contacts!</h3>
-										<br /> <br />
-										<Button style={BtnStyleSmall} onClick={handleCloseOverlay}>
-											Close
-										</Button>
-									</div>
-								)}
-							</>
-						)}
-					</motion.div>
+									) : (
+										<div className="end-card-content">
+											<h3>You've reached the end of your contacts!</h3>
+											<br /> <br />
+											<Button
+												style={BtnStyleSmall}
+												onClick={handleCloseOverlay}
+											>
+												Close
+											</Button>
+										</div>
+									)}
+								</>
+							)}
+						</motion.div>
+					</div>
 				</div>
-			</div>
-		)}
-	</>
-);
+			)}
+		</>
+	);
 };
 
 export default SwipeCard;

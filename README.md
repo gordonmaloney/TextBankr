@@ -17,3 +17,4 @@ Current priorities:
 - Swipe-cards for mobile
 - Fallback URL if scanned from outside the site
 - Better handling for longer messages
+- Adding Signal
