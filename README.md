@@ -11,7 +11,9 @@ Planned next steps are:
 - Considering how to incorporate Signal (it's not easy!)
 - Auto removing WhatsApp formatting from SMS messages
 - Adding emoji selector to template messages (maybe??)
-
+- Adding Telegram
+- Creating a 'Channel preferences' section
+- Streamlining the backend Links/Swiper logic
 
 Current priorities:
 - Swipe-cards for mobile
