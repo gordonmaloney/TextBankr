@@ -40,7 +40,41 @@ const Scanning = ({
 		scanner.render(
 			(decodedText) => {
 				try {
-					const chunk = JSON.parse(decodedText);
+					// CHANGED SCANNING BIT
+					// Check if scanned data is a URL
+					let chunk; // Declare chunk at the start
+
+					if (decodedText.startsWith("http")) {
+						const url = new URL(decodedText);
+						const dataParam = url.searchParams.get("data");
+
+						if (dataParam) {
+							try {
+								const decodedData = JSON.parse(decodeURIComponent(dataParam));
+
+								chunk = decodedData; // Assign decoded data to chunk
+							} catch (err) {
+								console.error("Failed to decode data:", err);
+								setScanProgress(Translation.scanInvalid);
+								return;
+							}
+						} else {
+							console.warn("No data parameter found in URL.");
+							setScanProgress(Translation.scanInvalid);
+							return;
+						}
+					} else {
+						try {
+							chunk = JSON.parse(decodedText); // Assign decodedText directly if not a URL
+						} catch (err) {
+							console.error("Failed to parse JSON:", err);
+							setScanProgress(Translation.scanInvalid);
+							return;
+						}
+					}
+
+					/*UNCHANGED SCANNING BIT
+					const chunk = JSON.parse(decodedText); */
 
 					// Add unique chunks only
 					if (!scannedChunks.some((c) => c.partIndex === chunk.partIndex)) {

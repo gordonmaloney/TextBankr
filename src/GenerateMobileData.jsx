@@ -47,20 +47,44 @@ const GenerateMobileData = ({
 
 			// Step 1: Add template messages to chunks
 			for (const [key, message] of Object.entries(templateMessages)) {
-				let partIndex = 0;
-				while (partIndex * maxChunkSize < message.length) {
-					const chunk = {
+				let messageIndex = 0;
+				let currentMessageChunk = "";
+				let currentSize = 0;
+
+				while (messageIndex < message.length) {
+					const nextPart = message[messageIndex];
+					const nextSize = new Blob([JSON.stringify(nextPart)]).size;
+
+					if (currentSize + nextSize > maxChunkSize) {
+						// Save the current chunk if it exceeds maxChunkSize
+						dataChunks.push({
+							key,
+							partIndex: dataChunks.length + 1,
+							totalParts: 0, // Placeholder
+							data: currentMessageChunk,
+							extensionCode,
+						});
+
+						// Start a new chunk
+						currentMessageChunk = "";
+						currentSize = 0;
+					}
+
+					// Add the part to the current chunk
+					currentMessageChunk += nextPart;
+					currentSize += nextSize;
+					messageIndex++;
+				}
+
+				// Save the last chunk if it has any data
+				if (currentMessageChunk.length > 0) {
+					dataChunks.push({
 						key,
-						partIndex: partIndex + 1,
+						partIndex: dataChunks.length + 1,
 						totalParts: 0, // Placeholder
-						data: message.slice(
-							partIndex * maxChunkSize,
-							(partIndex + 1) * maxChunkSize
-						),
+						data: currentMessageChunk,
 						extensionCode,
-					};
-					dataChunks.push(chunk);
-					partIndex++;
+					});
 				}
 			}
 
@@ -88,10 +112,24 @@ const GenerateMobileData = ({
 			// Step 4: Generate QR codes
 			for (const chunk of dataChunks) {
 				try {
+					//CHANGE QRCODEURL
+					const encodedData = encodeURIComponent(JSON.stringify(chunk));
+					const qrCodeUrl = await QRCode.toDataURL(
+						`${window.location.origin}/start?data=${encodedData}`,
+						{
+							errorCorrectionLevel: "H",
+							width: 600,
+						}
+					);
+
+					/*		
+					//UNCHANGED QRCODEURL THING
 					const qrCodeUrl = await QRCode.toDataURL(JSON.stringify(chunk), {
 						errorCorrectionLevel: "H",
 						width: 600,
 					});
+*/
+
 					qrChunks.push(qrCodeUrl);
 				} catch (error) {
 					console.error("Error generating QR code:", error);
@@ -102,10 +140,15 @@ const GenerateMobileData = ({
 			batchQrCodes.push(qrChunks);
 		}
 
+		console.log("Batch QR Codes:", batchQrCodes);
+
 		setBatchQrData(batchQrCodes);
 		setCurrentBatchIndex(0);
 		setQrCodes(batchQrCodes[0]);
 	};
+
+
+
 
 	useEffect(() => {
 		generateMobileData();
