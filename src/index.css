@@ -180,7 +180,6 @@ background-color: #f4fffc;
 
 .open-button {
   padding: 10px 20px;
-  background-color: #3498db;
   color: #fff;
   border: none;
   border-radius: 5px;
@@ -188,11 +187,9 @@ background-color: #f4fffc;
   transition: background-color 0.2s ease;
   margin-top: 20px;
   z-index: 10;
+  line-height: 18px !important;
 }
 
-.open-button:hover {
-  background-color: #2980b9;
-}
 
 .card-container {
   position: relative;

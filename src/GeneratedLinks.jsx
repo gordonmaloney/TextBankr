@@ -171,6 +171,10 @@ const generateSignalLink = (number) => {
 	if (rowData.length > 0) {
 		return (
 			<div id="generatedLinks" style={{ minHeight: "80vh" }}>
+				<h2 className="sarala-bold" style={{ margin: 0 }}>
+					Your Links:
+				</h2>
+				
 				<div
 					style={{
 						display: "flex",
@@ -180,22 +184,21 @@ const generateSignalLink = (number) => {
 						width: "100%",
 					}}
 				>
-					<h2 className="sarala-bold" style={{ margin: 0 }}>
-						Your Links:
-					</h2>
-
-					<Button
-						style={{
-							...BtnStyleSmall,
-							display: enableSignal ? "block" : "none",
-						}}
-						onClick={() => {
-							!showSignalLinks && OpenSignalModal();
-							setShowSignalLinks(!showSignalLinks);
-						}}
-					>
-						{!showSignalLinks ? "Show" : "Hide"} Signal Links
-					</Button>
+					<div>
+						<Button
+							style={{
+								...BtnStyleSmall,
+								display: enableSignal ? "block" : "none",
+							}}
+							className="open-button"
+							onClick={() => {
+								!showSignalLinks && OpenSignalModal();
+								setShowSignalLinks(!showSignalLinks);
+							}}
+						>
+							{!showSignalLinks ? "Show" : "Hide"} Signal Links
+						</Button>
+					</div>
 
 					<div
 						style={{
@@ -476,14 +479,19 @@ const generateSignalLink = (number) => {
 									position: "relative",
 								}}
 							>
-
-								Please note that Signal doesn't allow 'pre-filled' links like WhatsApp or SMS does. To get around that, clicking the 'Signal' button on a contact will do two things:
+								Please note that Signal doesn't allow 'pre-filled' links like
+								WhatsApp or SMS does. To get around that, clicking the 'Signal'
+								button on a contact will do two things:
 								<ol>
-									<li>Open the Signal app and start a conversation with your contact (provided they're on Signal and can be messaged!)</li>
+									<li>
+										Open the Signal app and start a conversation with your
+										contact (provided they're on Signal and can be messaged!)
+									</li>
 									<li>Copy the relevant message to your clipboard</li>
 								</ol>
-								That means you just need to click the button to start the conversation with your contact, and then <b>paste</b> your message in.
-
+								That means you just need to click the button to start the
+								conversation with your contact, and then <b>paste</b> your
+								message in.
 							</p>
 
 							<center>

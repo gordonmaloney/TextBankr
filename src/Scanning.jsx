@@ -14,6 +14,20 @@ const Scanning = ({
 	const [isScanning, setIsScanning] = useState(false);
 	const [scanProgress, setScanProgress] = useState(""); // Progress message
 
+
+
+	//if redirected from camera scan, set is scanning to true right away
+	useEffect(() => {
+		const urlParams = new URLSearchParams(window.location.search);
+		const dataParam = urlParams.get("data");
+
+		if (dataParam) {
+			console.log("Data parameter found in URL.");
+			setIsScanning(true);
+		}
+	}, []);
+
+
 	const scrollToLinks = () => {
 		document
 			.getElementById("generatedLinks")
@@ -141,6 +155,7 @@ const Scanning = ({
 		setExtensionCode,
 	]);
 
+	
 	return (
 		<div>
 			{isScanning && (

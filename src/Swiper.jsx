@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { motion, useMotionValue, useTransform } from "framer-motion";
 import { Button } from "@mui/material";
 import Grid from "@mui/material/Grid2";
-import { BtnStyleSmall, LinkBtn, LinkBtnLarge } from "./MUIShared";
+import { BtnStyle, BtnStyleSmall, LinkBtn, LinkBtnLarge } from "./MUIShared";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
 	faWhatsapp,
@@ -44,12 +44,12 @@ const SwipeCard = ({
 	const overlayRef = useRef(null);
 
 	const handleDragEnd = (event, info) => {
-		if (info.offset.x > 200) {
+		if (info.offset.x > 180) {
 			if (index > 0) {
 				setIndex((prev) => Math.max(prev - 1, 0));
 			}
 			x.set(0);
-		} else if (info.offset.x < -200) {
+		} else if (info.offset.x < -180) {
 			if (index < rowData.length) {
 				setIndex((prev) => Math.min(prev + 1, rowData.length));
 			}
