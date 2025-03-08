@@ -9,7 +9,6 @@ import {
 import Home from "./Home";
 import TextBankr from "./TextBankr";
 import { Translations } from "./Translations";
-import Swiper from "./Swiper";
 
 // Supported languages (excluding default English)
 const supportedLanguages = ["fr"]; // English doesn't need a prefix
@@ -41,16 +40,7 @@ const App = () => {
 					element={<TextBankr Translation={Translations["en"]} />}
 				/>
 
-				<Route path="/swipe"
-					element={<Swiper
-						data={[
-    { name: 'John Doe', phone: '+1234567890' },
-    { name: 'Jane Doe', phone: '+0987654321' },
-    { name: 'Alice', phone: '+1122334455' },
-    { name: 'Bob', phone: '+5566778899' },
-  ]}
-					/>}
-				/>
+			
 				{/* Parent Route for Language Handling */}
 				<Route path="/:lang/*" element={<LanguageRoutes />} />
 

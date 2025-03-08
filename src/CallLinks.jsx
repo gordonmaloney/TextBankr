@@ -63,7 +63,6 @@ export const BtnBlock = ({
 		enableSignal,
 	} = useContactLinks(extensionCode);
 
-	console.log("show signal? " + showSignalLinks);
 	return (
 		<>
 			{!number ? (

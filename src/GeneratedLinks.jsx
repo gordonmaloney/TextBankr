@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import SwipeCard from "./Swiper";
+import SwipeCard from "./SwipeCards/Swiper";
 import { Button } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import { BtnStyleSmall, LinkBtn } from "./MUIShared";
@@ -170,6 +170,7 @@ const GeneratedLinks = ({
 					}}
 				>
 					<center>
+						{/* 
 						<SwipeCard
 							rowData={rowData}
 							extensionCode={extensionCode}
@@ -178,6 +179,7 @@ const GeneratedLinks = ({
 							isMobile={isMobile}
 							showSignalLinks={showSignalLinks}
 						/>
+						*/}
 					</center>
 				</div>
 
