@@ -1,1 +1,1 @@
-export const SignalTelegramEnabled = false
+export const SignalTelegramEnabled = true

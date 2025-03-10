@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { motion, useMotionValue, useTransform, animate } from "framer-motion";
 import { Button } from "@mui/material";
 import { BtnStyleSmall } from "../MUIShared";
@@ -57,18 +57,49 @@ const SwipeCard = ({
 
 	const overlayRef = useRef(null);
 
+	// Dynamically compute drag constraints based on the card index.
+	// "unlimited" simulates a free drag in the allowed direction.
+	const dynamicConstraints = useMemo(() => {
+		const unlimited = 10000; // A large number to simulate "unlimited"
+		let horizontal;
+		if (index === 0) {
+			// First card: allow left freely (swipe left to go forward),
+			// but limit right drag (backwards) to 50px.
+			horizontal = { left: -unlimited, right: 30 };
+		} else if (index === rowData.length) {
+			// End card: allow right freely (swipe right to go back),
+			// but limit left drag (forward) to 50px.
+			horizontal = { left: -30, right: unlimited };
+		} else {
+			horizontal = { left: -unlimited, right: unlimited };
+		}
+
+		let vertical;
+		if (index === 0) {
+			// First card: allow upward drag freely (swipe up for next),
+			// but limit downward drag to 50px.
+			vertical = { top: -unlimited, bottom: 30 };
+		} else if (index === rowData.length) {
+			// End card: allow downward drag freely (swipe down to go back),
+			// but limit upward drag to 50px.
+			vertical = { top: -30, bottom: unlimited };
+		} else {
+			vertical = { top: -unlimited, bottom: unlimited };
+		}
+
+		return { ...horizontal, ...vertical };
+	}, [index, rowData.length]);
+
 	const handleDragEnd = (event, info) => {
 		if (swiping) return; // Prevent new swipes during animation
 		const threshold = 150; // Adjust swipe sensitivity
 
-		// Determine if the swipe is primarily vertical or horizontal
 		if (Math.abs(info.offset.y) > Math.abs(info.offset.x)) {
 			// Vertical swipe
 			if (Math.abs(info.offset.y) > threshold) {
 				if (info.offset.y > 0) {
 					// Dragging down
 					if (index > 0) {
-						// Allowed swipe: animate off-screen downwards
 						setSwiping(true);
 						animate(y, offScreenY, { duration: SwipeSpeed }).then(() => {
 							setIndex((prev) => Math.max(prev - 1, 0));
@@ -78,31 +109,26 @@ const SwipeCard = ({
 							});
 						});
 					} else {
-						// Not allowed: snap back vertically
 						animate(y, 0, { duration: SwipeSpeed });
 					}
 				} else {
 					// Dragging up
 					if (index < rowData.length) {
-						// Allow swipe if there is a card or the end-card is available
 						setSwiping(true);
 						animate(y, -offScreenY, { duration: SwipeSpeed }).then(() => {
-							setIndex((prev) => Math.min(prev + 1, rowData.length)); // Now can reach rowData.length
+							setIndex((prev) => Math.min(prev + 1, rowData.length));
 							y.set(offScreenY); // New card comes from the bottom
 							animate(y, 0, { duration: SwipeSpeed }).then(() => {
 								setSwiping(false);
 							});
 						});
 					} else {
-						// Not allowed: snap back vertically
 						animate(y, 0, { duration: SwipeSpeed });
 					}
 				}
 			} else {
-				// Not enough vertical movement: snap back
 				animate(y, 0, { duration: SwipeSpeed });
 			}
-			// Always snap horizontal value back to 0 when vertical swipe
 			animate(x, 0, { duration: SwipeSpeed });
 		} else {
 			// Horizontal swipe
@@ -110,7 +136,6 @@ const SwipeCard = ({
 				if (info.offset.x > 0) {
 					// Dragging right
 					if (index > 0) {
-						// Allowed swipe: animate off-screen to the right
 						setSwiping(true);
 						setIsSwipingOff(true);
 						animate(x, offScreenX, { duration: SwipeSpeed }).then(() => {
@@ -124,17 +149,15 @@ const SwipeCard = ({
 							});
 						});
 					} else {
-						// Not allowed: snap back horizontally
 						animate(x, 0, { duration: SwipeSpeed });
 					}
 				} else {
 					// Dragging left
 					if (index < rowData.length) {
-						// Allow swipe if a card is available or to reach the end-card
 						setSwiping(true);
 						setIsSwipingOff(true);
 						animate(x, -offScreenX, { duration: SwipeSpeed }).then(() => {
-							setIndex((prev) => Math.min(prev + 1, rowData.length)); // Now can reach rowData.length
+							setIndex((prev) => Math.min(prev + 1, rowData.length));
 							x.set(offScreenX); // New card comes from the right
 							setIsSwipingOff(false);
 							setIsSlidingOn(true);
@@ -144,34 +167,31 @@ const SwipeCard = ({
 							});
 						});
 					} else {
-						// Not allowed: snap back horizontally
 						animate(x, 0, { duration: SwipeSpeed });
 					}
 				}
 			} else {
-				// Not enough horizontal movement: snap back
 				animate(x, 0, { duration: SwipeSpeed });
 			}
-			// Always snap vertical value back to 0 when horizontal swipe
 			animate(y, 0, { duration: SwipeSpeed });
 		}
 	};
 
 	const handleOutsideClick = (e) => {
 		if (overlayRef.current && !overlayRef.current.contains(e.target)) {
-			setIsOpen(false); // Close overlay if clicked outside
+			setIsOpen(false);
 		}
 	};
 
 	const handleOpenOverlay = () => {
-		setIndex(0); // Reset to first card
-		x.set(0); // Reset horizontal motion value
-		y.set(0); // Reset vertical motion value
-		setIsOpen(true); // Open overlay
+		setIndex(0);
+		x.set(0);
+		y.set(0);
+		setIsOpen(true);
 	};
 
 	const handleCloseOverlay = () => {
-		setIsOpen(false); // Close overlay
+		setIsOpen(false);
 	};
 
 	return (
@@ -179,9 +199,7 @@ const SwipeCard = ({
 			<SwipeExplainer isOpen={isOpen} />
 
 			<Button
-				style={{
-					...BtnStyleSmall,
-				}}
+				style={{ ...BtnStyleSmall }}
 				className="open-button"
 				onClick={handleOpenOverlay}
 			>
@@ -193,7 +211,7 @@ const SwipeCard = ({
 					<div
 						className="card-container"
 						ref={overlayRef}
-						onClick={(e) => e.stopPropagation()} // Prevent closing when clicking on the card
+						onClick={(e) => e.stopPropagation()}
 					>
 						<motion.div
 							className={index < rowData.length ? "card" : "end-card"}
@@ -208,6 +226,7 @@ const SwipeCard = ({
 							}}
 							drag
 							dragDirectionLock
+							dragConstraints={dynamicConstraints}
 							onDragStart={() => {
 								console.log("Drag start:", x.get(), y.get());
 							}}
