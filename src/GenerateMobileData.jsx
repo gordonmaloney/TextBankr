@@ -3,126 +3,127 @@ import QRCode from "qrcode";
 import { Button, TextField } from "@mui/material";
 import { BtnStyleSmall } from "./MUIShared";
 import Grid from "@mui/material/Grid2";
+import CloseIcon from "@mui/icons-material/Close";
 
 const GenerateMobileData = ({
-	Translation,
+  Translation,
 
-	rowData,
-	isMobile,
-	followUpMessage,
-	noAnswerMessage,
-	extensionCode,
+  rowData,
+  isMobile,
+  followUpMessage,
+  noAnswerMessage,
+  extensionCode,
 }) => {
-	const [qrCodes, setQrCodes] = useState([]);
-	const [currentQrIndex, setCurrentQrIndex] = useState(0);
-	const [isModalOpen, setIsModalOpen] = useState(false);
-	const [numBatches, setNumBatches] = useState(1);
-	const [currentBatchIndex, setCurrentBatchIndex] = useState(0);
-	const [batchQrData, setBatchQrData] = useState([]); // Stores QR codes per batch
+  const [qrCodes, setQrCodes] = useState([]);
+  const [currentQrIndex, setCurrentQrIndex] = useState(0);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [numBatches, setNumBatches] = useState(1);
+  const [currentBatchIndex, setCurrentBatchIndex] = useState(0);
+  const [batchQrData, setBatchQrData] = useState([]); // Stores QR codes per batch
 
-	const [hosting, setHosting] = useState(false);
+  const [hosting, setHosting] = useState(false);
 
-	const [rotateSpeed, setRotateSpeed] = useState(1000);
+  const [rotateSpeed, setRotateSpeed] = useState(1000);
 
-	const generateMobileData = async () => {
-		if (numBatches < 1) return;
+  const generateMobileData = async () => {
+    if (numBatches < 1) return;
 
-		const maxChunkSize = 800;
-		const templateMessages = {
-			noAnswer: noAnswerMessage,
-			followUp: followUpMessage,
-		};
+    const maxChunkSize = 800;
+    const templateMessages = {
+      noAnswer: noAnswerMessage,
+      followUp: followUpMessage,
+    };
 
-		// Split contacts into batches
-		const batchSize = Math.ceil(rowData.length / numBatches);
-		const batches = Array.from({ length: numBatches }, (_, i) =>
-			rowData.slice(i * batchSize, (i + 1) * batchSize)
-		);
+    // Split contacts into batches
+    const batchSize = Math.ceil(rowData.length / numBatches);
+    const batches = Array.from({ length: numBatches }, (_, i) =>
+      rowData.slice(i * batchSize, (i + 1) * batchSize)
+    );
 
-		const batchQrCodes = [];
+    const batchQrCodes = [];
 
-		for (const batch of batches) {
-			const dataChunks = [];
-			const qrChunks = [];
+    for (const batch of batches) {
+      const dataChunks = [];
+      const qrChunks = [];
 
-			// Step 1: Add template messages to chunks
-			for (const [key, message] of Object.entries(templateMessages)) {
-				let messageIndex = 0;
-				let currentMessageChunk = "";
-				let currentSize = 0;
+      // Step 1: Add template messages to chunks
+      for (const [key, message] of Object.entries(templateMessages)) {
+        let messageIndex = 0;
+        let currentMessageChunk = "";
+        let currentSize = 0;
 
-				while (messageIndex < message.length) {
-					const nextPart = message[messageIndex];
-					const nextSize = new Blob([JSON.stringify(nextPart)]).size;
+        while (messageIndex < message.length) {
+          const nextPart = message[messageIndex];
+          const nextSize = new Blob([JSON.stringify(nextPart)]).size;
 
-					if (currentSize + nextSize > maxChunkSize) {
-						// Save the current chunk if it exceeds maxChunkSize
-						dataChunks.push({
-							key,
-							partIndex: dataChunks.length + 1,
-							totalParts: 0, // Placeholder
-							data: currentMessageChunk,
-							extensionCode,
-						});
+          if (currentSize + nextSize > maxChunkSize) {
+            // Save the current chunk if it exceeds maxChunkSize
+            dataChunks.push({
+              key,
+              partIndex: dataChunks.length + 1,
+              totalParts: 0, // Placeholder
+              data: currentMessageChunk,
+              extensionCode,
+            });
 
-						// Start a new chunk
-						currentMessageChunk = "";
-						currentSize = 0;
-					}
+            // Start a new chunk
+            currentMessageChunk = "";
+            currentSize = 0;
+          }
 
-					// Add the part to the current chunk
-					currentMessageChunk += nextPart;
-					currentSize += nextSize;
-					messageIndex++;
-				}
+          // Add the part to the current chunk
+          currentMessageChunk += nextPart;
+          currentSize += nextSize;
+          messageIndex++;
+        }
 
-				// Save the last chunk if it has any data
-				if (currentMessageChunk.length > 0) {
-					dataChunks.push({
-						key,
-						partIndex: dataChunks.length + 1,
-						totalParts: 0, // Placeholder
-						data: currentMessageChunk,
-						extensionCode,
-					});
-				}
-			}
+        // Save the last chunk if it has any data
+        if (currentMessageChunk.length > 0) {
+          dataChunks.push({
+            key,
+            partIndex: dataChunks.length + 1,
+            totalParts: 0, // Placeholder
+            data: currentMessageChunk,
+            extensionCode,
+          });
+        }
+      }
 
-			// Step 2: Add contacts to chunks
-			const estimatedContactSize = JSON.stringify(batch[0] || {}).length + 50;
-			const contactsPerChunk = Math.floor(maxChunkSize / estimatedContactSize);
+      // Step 2: Add contacts to chunks
+      const estimatedContactSize = JSON.stringify(batch[0] || {}).length + 50;
+      const contactsPerChunk = Math.floor(maxChunkSize / estimatedContactSize);
 
-			for (let i = 0; i < batch.length; i += contactsPerChunk) {
-				const chunk = {
-					partIndex: dataChunks.length + 1,
-					totalParts: 0, // Placeholder
-					data: batch.slice(i, i + contactsPerChunk),
-					extensionCode,
-				};
-				dataChunks.push(chunk);
-			}
+      for (let i = 0; i < batch.length; i += contactsPerChunk) {
+        const chunk = {
+          partIndex: dataChunks.length + 1,
+          totalParts: 0, // Placeholder
+          data: batch.slice(i, i + contactsPerChunk),
+          extensionCode,
+        };
+        dataChunks.push(chunk);
+      }
 
-			// Step 3: Set totalParts for all chunks
-			const totalParts = dataChunks.length;
-			dataChunks.forEach((chunk, index) => {
-				chunk.totalParts = totalParts;
-				chunk.partIndex = index + 1;
-			});
+      // Step 3: Set totalParts for all chunks
+      const totalParts = dataChunks.length;
+      dataChunks.forEach((chunk, index) => {
+        chunk.totalParts = totalParts;
+        chunk.partIndex = index + 1;
+      });
 
-			// Step 4: Generate QR codes
-			for (const chunk of dataChunks) {
-				try {
-					//CHANGE QRCODEURL
-					const encodedData = encodeURIComponent(JSON.stringify(chunk));
-					const qrCodeUrl = await QRCode.toDataURL(
-						`${window.location.origin}/start?data=${encodedData}`,
-						{
-							errorCorrectionLevel: "H",
-							width: 600,
-						}
-					);
+      // Step 4: Generate QR codes
+      for (const chunk of dataChunks) {
+        try {
+          //CHANGE QRCODEURL
+          const encodedData = encodeURIComponent(JSON.stringify(chunk));
+          const qrCodeUrl = await QRCode.toDataURL(
+            `${window.location.origin}/start?data=${encodedData}`,
+            {
+              errorCorrectionLevel: "H",
+              width: 600,
+            }
+          );
 
-					/*		
+          /*		
 					//UNCHANGED QRCODEURL THING
 					const qrCodeUrl = await QRCode.toDataURL(JSON.stringify(chunk), {
 						errorCorrectionLevel: "H",
@@ -130,314 +131,351 @@ const GenerateMobileData = ({
 					});
 */
 
-					qrChunks.push(qrCodeUrl);
-				} catch (error) {
-					console.error("Error generating QR code:", error);
-					return;
-				}
-			}
+          qrChunks.push(qrCodeUrl);
+        } catch (error) {
+          console.error("Error generating QR code:", error);
+          return;
+        }
+      }
 
-			batchQrCodes.push(qrChunks);
-		}
+      batchQrCodes.push(qrChunks);
+    }
 
-		console.log("Batch QR Codes:", batchQrCodes);
+    console.log("Batch QR Codes:", batchQrCodes);
 
-		setBatchQrData(batchQrCodes);
-		setCurrentBatchIndex(0);
-		setQrCodes(batchQrCodes[0]);
-	};
+    setBatchQrData(batchQrCodes);
+    setCurrentBatchIndex(0);
+    setQrCodes(batchQrCodes[0]);
+  };
 
+  useEffect(() => {
+    generateMobileData();
+  }, [numBatches]);
 
+  useEffect(() => {
+    if (qrCodes.length > 0) {
+      const interval = setInterval(() => {
+        setCurrentQrIndex((prevIndex) => (prevIndex + 1) % qrCodes.length);
+      }, rotateSpeed);
+      return () => clearInterval(interval);
+    }
+  }, [qrCodes, rotateSpeed]);
 
+  const nextBatch = () => {
+    if (currentBatchIndex < batchQrData.length - 1) {
+      setCurrentBatchIndex(currentBatchIndex + 1);
+      setQrCodes(batchQrData[currentBatchIndex + 1]);
+      setCurrentQrIndex(0);
+    }
+  };
 
-	useEffect(() => {
-		generateMobileData();
-	}, [numBatches]);
+  const prevBatch = () => {
+    if (currentBatchIndex > 0) {
+      setCurrentBatchIndex(currentBatchIndex - 1);
+      setQrCodes(batchQrData[currentBatchIndex - 1]);
+      setCurrentQrIndex(0);
+    }
+  };
 
-	useEffect(() => {
-		if (qrCodes.length > 0) {
-			const interval = setInterval(() => {
-				setCurrentQrIndex((prevIndex) => (prevIndex + 1) % qrCodes.length);
-			}, rotateSpeed);
-			return () => clearInterval(interval);
-		}
-	}, [qrCodes, rotateSpeed]);
+  const baseURL = window.location.host;
 
-	const nextBatch = () => {
-		if (currentBatchIndex < batchQrData.length - 1) {
-			setCurrentBatchIndex(currentBatchIndex + 1);
-			setQrCodes(batchQrData[currentBatchIndex + 1]);
-			setCurrentQrIndex(0);
-		}
-	};
+  const handleHosting = () => {
+    if (!hosting) {
+      setHosting(true);
+    } else {
+      setNumBatches(1);
+      setHosting(false);
+    }
+  };
 
-	const prevBatch = () => {
-		if (currentBatchIndex > 0) {
-			setCurrentBatchIndex(currentBatchIndex - 1);
-			setQrCodes(batchQrData[currentBatchIndex - 1]);
-			setCurrentQrIndex(0);
-		}
-	};
+  const openModal = () => {
+    generateMobileData();
+    setIsModalOpen(true);
+  };
 
-	const baseURL = window.location.host;
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setHosting(false);
+  };
 
-	const handleHosting = () => {
-		if (!hosting) {
-			setHosting(true);
-		} else {
-			setNumBatches(1);
-			setHosting(false);
-		}
-	};
+  const openHostModal = () => {
+    setHosting(true);
+    generateMobileData();
+    setIsModalOpen(true);
+  };
 
-	const openModal = () => {
-		generateMobileData();
-		setIsModalOpen(true);
-	};
+  return (
+    <>
+      {!isMobile && (
+        <>
+          <Button
+            variant="contained"
+            sx={BtnStyleSmall}
+            onClick={() => openModal()}
+            disabled={rowData.length === 0}
+          >
+            Send from mobile
+          </Button>
 
-	const closeModal = () => {
-		setIsModalOpen(false);
-		setHosting(false);
-	};
+          <Button
+            variant="contained"
+            sx={{ ...BtnStyleSmall, marginLeft: isMobile ? 0 : "20px" }}
+            onClick={() => openHostModal()}
+            disabled={rowData.length === 0}
+          >
+            Host a session
+          </Button>
+        </>
+      )}
 
-	const openHostModal = () => {
-		setHosting(true);
-		generateMobileData();
-		setIsModalOpen(true);
-	};
+      {isModalOpen && (
+        <div
+          onClick={() => closeModal()}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            backgroundColor: "rgba(0, 0, 0, 0.8)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 1000,
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              backgroundColor: "#fff",
+              padding: "10px",
+              borderRadius: "10px",
+              textAlign: "center",
+              width: "90%",
+              maxWidth: "1000px",
+            }}
+          >
+            <Grid
+              container
+              spacing={2}
+              alignItems="center"
+              justifyContent="center"
+              sx={{ height: hosting && numBatches > 1 ? "600px" : "550px" }}
+            >
+              <Grid
+                size={{ xs: 6 }}
+                style={{
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                  flexGrow: 1,
+                }}
+                // justifyContent={"space-between"}
+              >
+                <div>
+                  <CloseIcon
+                    style={{ float: "left", cursor: "pointer" }}
+                    onClick={() => closeModal()}
+                  />
 
-	return (
-		<>
-			{!isMobile && (
-				<>
-					<Button
-						variant="contained"
-						sx={BtnStyleSmall}
-						onClick={() => openModal()}
-						disabled={rowData.length === 0}
-					>
-						Send from mobile
-					</Button>
+                  <h2 style={{ marginBottom: "12px", marginTop: "12px" }}>
+                    Scan from your mobile
+                  </h2>
+                </div>
+                <p
+                  style={{
+                    textAlign: "left",
+                    padding: "0 20px",
+                    marginTop: 0,
+                    zIndex: 5,
+                    display: !hosting ? "block" : "none",
+                    position: "relative",
+                  }}
+                >
+                  To send your messages from your phone, simply open{" "}
+                  <u>{baseURL}/start</u> from your mobile, hit "Scan from
+                  desktop" and scan the QR code
+                  {qrCodes.length > 1 && <>s</>} to the right.
+                  {qrCodes.length > 1 && !hosting && (
+                    <>
+                      <br />
+                      <br />
+                      <br />
+                      <br />
+                      <em>
+                        "Why is there more than one QR code?? Why does it keep
+                        changing??"
+                      </em>
+                      <br />
+                      QR codes can only contain a relatively small amount of
+                      data, so your template messages and contacts' details are
+                      split up into a few different ones. But when you scan from
+                      your mobile, it will take them all in and combine them -
+                      just hold your phone's camera up as they flip through and
+                      it will do the rest for you!
+                    </>
+                  )}
+                </p>
+                {hosting && (
+                  <>
+                    <p
+                      style={{
+                        textAlign: "left",
+                        padding: "0 20px",
+                        marginTop: 0,
+                        marginBottom: 0,
+                        zIndex: 5,
+                        display: "block",
+                        position: "relative",
+                      }}
+                    >
+                      If you are hosting a phone- or text-banking session, you
+                      can divvy up the contacts between attendees. Just say how
+                      many people you want to split it up by, and each user will
+                      get a set of QR codes with the template message(s) and
+                      their portion of the contacts.
+                    </p>
+                    <div>
+                      <Grid
+                        container
+                        spacing={2}
+                        style={{
+                          width: "80%",
+                          margin: "0 auto",
+                          position: "relative",
+                          zIndex: "2",
+                        }}
+                        justifyContent={"center"}
+                        alignItems={"center"}
+                      >
+                        <Grid size={{ xs: 6 }}>
+                          <h4 style={{ textAlign: "left" }}>
+                            How many people are you splitting between?
+                          </h4>
+                        </Grid>{" "}
+                        <Grid>
+                          <TextField
+                            type="number"
+                            value={numBatches}
+                            onChange={(e) =>
+                              setNumBatches(
+                                Math.max(1, parseInt(e.target.value, 10) || 1)
+                              )
+                            }
+                            sx={{
+                              width: "120px",
+                              marginRight: "10px",
+                              position: "relative",
+                              zIndex: "2",
+                            }}
+                          />
+                        </Grid>
+                      </Grid>
+                      {numBatches > 1 && (
+                        <div>
+                          <p style={{ textAlign: "left", padding: "0 20px" }}>
+                            Once each person has scanned, you can use these
+                            buttons to generate the QR codes for the next user.
+                          </p>
 
-					<Button
-						variant="contained"
-						sx={{ ...BtnStyleSmall, marginLeft: isMobile ? 0 : "20px" }}
-						onClick={() => openHostModal()}
-						disabled={rowData.length === 0}
-					>
-						Host a session
-					</Button>
-				</>
-			)}
+                          <Button
+                            variant="contained"
+                            sx={{
+                              ...BtnStyleSmall,
+                              position: "relative",
+                              zIndex: "2",
+                              marginRight: "5px",
+                            }}
+                            onClick={prevBatch}
+                            disabled={currentBatchIndex === 0}
+                          >
+                            Previous
+                          </Button>
 
-			{isModalOpen && (
-				<div
-					onClick={() => closeModal()}
-					style={{
-						position: "fixed",
-						top: 0,
-						left: 0,
-						width: "100vw",
-						height: "100vh",
-						backgroundColor: "rgba(0, 0, 0, 0.8)",
-						display: "flex",
-						justifyContent: "center",
-						alignItems: "center",
-						zIndex: 1000,
-					}}
-				>
-					<div
-						onClick={(e) => e.stopPropagation()}
-						style={{
-							backgroundColor: "#fff",
-							padding: "10px",
-							borderRadius: "10px",
-							textAlign: "center",
-							width: "80%",
-							maxWidth: "800px",
-						}}
-					>
-						<h2 style={{ marginBottom: "12px", marginTop: "12px" }}>
-							Scan from your mobile
-						</h2>
-						<p
-							style={{
-								textAlign: "left",
-								padding: "0 20px",
-								marginTop: 0,
-								zIndex: 5,
-								display: !hosting ? "block" : "none",
-								position: "relative",
-							}}
-						>
-							To send your messages from your phone, simply open{" "}
-							<u>{baseURL}/start</u> from your mobile, hit "Scan from desktop"
-							and scan the below QR code{qrCodes.length > 1 && <>s</>}.
-							{qrCodes.length > 1 && !hosting && (
-								<>
-									<br />
-									<br />
-									<em>"Why are there so many?? Why are they changing??"</em>
-									<br />
-									QR codes can only contain a relatively small amount of data,
-									so your template messages and contacts' details are split up
-									into a few different ones. But when you scan from your mobile,
-									it will take them all in and combine them - just hold your
-									phone's camera up as they flip through and it will do the rest
-									for you!
-								</>
-							)}
-						</p>
-						{hosting && (
-							<>
-								<p
-									style={{
-										textAlign: "left",
-										padding: "0 20px",
-										marginTop: 0,
-										marginBottom: 0,
-										zIndex: 5,
-										display: "block",
-										position: "relative",
-									}}
-								>
-									If you are hosting a phone- or text-banking session, you can
-									divvy up the contacts between attendees. Just say how many
-									people you want to split it up by, and each user will get a
-									set of QR codes with the template message(s) and their portion
-									of the contacts.
-								</p>
-								<div>
-									<Grid
-										container
-										spacing={2}
-										style={{
-											width: "80%",
-											margin: "0 auto",
-											position: "relative",
-											zIndex: "2",
-										}}
-										justifyContent={"center"}
-										alignItems={"center"}
-									>
-										<Grid size={{ xs: 6 }}>
-											<h4 style={{ textAlign: "left" }}>
-												How many people are you splitting between?
-											</h4>
-										</Grid>{" "}
-										<Grid>
-											<TextField
-												type="number"
-												value={numBatches}
-												onChange={(e) =>
-													setNumBatches(
-														Math.max(1, parseInt(e.target.value, 10) || 1)
-													)
-												}
-												sx={{
-													width: "120px",
-													marginRight: "10px",
-													position: "relative",
-													zIndex: "2",
-												}}
-											/>
-										</Grid>
-									</Grid>
-									{numBatches > 1 && (
-										<div>
-											<p style={{ textAlign: "left", padding: "0 20px" }}>
-												Once each person has scanned, you can use these buttons
-												to generate the QR codes for the next user.
-											</p>
+                          <Button
+                            variant="contained"
+                            sx={{
+                              ...BtnStyleSmall,
+                              position: "relative",
+                              zIndex: "2",
+                              marginLeft: "5px",
+                            }}
+                            onClick={nextBatch}
+                            disabled={
+                              currentBatchIndex === batchQrData.length - 1
+                            }
+                          >
+                            Next
+                          </Button>
+                          <br />
+                          <br />
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
+              </Grid>
+              <Grid
+                size={{ xs: 6 }}
+                style={{
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                  flexGrow: 1,
+                }}
+                justifyContent={"space-between"}
+              >
+                {hosting && numBatches > 1 && (
+                  <h3
+                    style={{
+                      margin: 0,
+                      display: "block",
+                      position: "relative",
+                      zIndex: "2",
+                      marginBottom: "5px",
+                    }}
+                  >
+                    User {currentBatchIndex + 1}
+                  </h3>
+                )}
 
-											<Button
-												variant="contained"
-												sx={{
-													...BtnStyleSmall,
-													position: "relative",
-													zIndex: "2",
-													marginRight: "5px",
-												}}
-												onClick={prevBatch}
-												disabled={currentBatchIndex === 0}
-											>
-												Previous
-											</Button>
+                <div>
+                  <img
+                    src={qrCodes[currentQrIndex]}
+                    alt="QR Code"
+                    style={{
+                      maxWidth: "500px",
+                      height: "auto",
+                      position: "relative",
+                      zIndex: 1,
+                      margin: "-10px",
+                    }}
+                  />
+                  <span
+                    style={{
+                      display: "block",
+                      position: "relative",
+                      zIndex: 5,
+                    }}
+                  >
+                    QR Code {currentQrIndex + 1} of {qrCodes.length}
+                  </span>
+                </div>
 
-											<Button
-												variant="contained"
-												sx={{
-													...BtnStyleSmall,
-													position: "relative",
-													zIndex: "2",
-													marginLeft: "5px",
-												}}
-												onClick={nextBatch}
-												disabled={currentBatchIndex === batchQrData.length - 1}
-											>
-												Next
-											</Button>
-											<br />
-											<br />
-										</div>
-									)}
-								</div>
-							</>
-						)}
-						{hosting && numBatches > 1 && (
-							<h3
-								style={{
-									margin: 0,
-									display: "block",
-									position: "relative",
-									zIndex: "2",
-									marginBottom: "5px",
-								}}
-							>
-								User {currentBatchIndex + 1}
-							</h3>
-						)}
-						<img
-							src={qrCodes[currentQrIndex]}
-							alt="QR Code"
-							style={{
-								maxWidth: "500px",
-								height: "auto",
-								position: "relative",
-								zIndex: 1,
-								margin: "-10px",
-							}}
-						/>
-						<span
-							style={{
-								display: "block",
-								position: "relative",
-								zIndex: 5,
-							}}
-						>
-							QR Code {currentQrIndex + 1} of {qrCodes.length}
-						</span>
-						<br />
-						<Button
-							variant="contained"
-							sx={BtnStyleSmall}
-							onClick={() => closeModal()}
-						>
-							Close
-						</Button>{" "}
-						<Button
-							variant="contained"
-							sx={BtnStyleSmall}
-							onClick={() => setRotateSpeed(1500)}
-						>
-							Too fast?
-						</Button>
-						<br />
-					</div>
-				</div>
-			)}
-		</>
-	);
+                <Button
+                  variant="contained"
+                  sx={{ ...BtnStyleSmall, width: "auto", margin: "0 auto" }}
+                  onClick={() => setRotateSpeed(rotateSpeed + 200)}
+                >
+                  Slow down rotation speed
+                </Button>
+              </Grid>
+            </Grid>
+          </div>
+        </div>
+      )}
+    </>
+  );
 };
 
 export default GenerateMobileData;
