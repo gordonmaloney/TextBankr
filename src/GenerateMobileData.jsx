@@ -4,6 +4,7 @@ import { Button, TextField } from "@mui/material";
 import { BtnStyleSmall } from "./MUIShared";
 import Grid from "@mui/material/Grid2";
 import CloseIcon from "@mui/icons-material/Close";
+import illustration from "./imgs/illustration.png";
 
 const GenerateMobileData = ({
   Translation,
@@ -260,17 +261,18 @@ const GenerateMobileData = ({
               spacing={2}
               alignItems="center"
               justifyContent="center"
-              sx={{ height: hosting && numBatches > 1 ? "600px" : "550px" }}
+              sx={{ 
+                height: hosting && numBatches > 1 ? "600px" : "550px" }}
             >
               <Grid
-                size={{ xs: 6 }}
+                size={{ xs: 4, lg: 6 }}
                 style={{
                   height: "100%",
                   display: "flex",
                   flexDirection: "column",
                   flexGrow: 1,
                 }}
-                // justifyContent={"space-between"}
+                justifyContent={"space-between"}
               >
                 <div>
                   <CloseIcon
@@ -292,29 +294,14 @@ const GenerateMobileData = ({
                     position: "relative",
                   }}
                 >
-                  To send your messages from your phone, simply open{" "}
-                  <u>{baseURL}/start</u> from your mobile, hit "Scan from
-                  desktop" and scan the QR code
-                  {qrCodes.length > 1 && <>s</>} to the right.
-                  {qrCodes.length > 1 && !hosting && (
-                    <>
-                      <br />
-                      <br />
-                      <br />
-                      <br />
-                      <em>
-                        "Why is there more than one QR code?? Why does it keep
-                        changing??"
-                      </em>
-                      <br />
-                      QR codes can only contain a relatively small amount of
-                      data, so your template messages and contacts' details are
-                      split up into a few different ones. But when you scan from
-                      your mobile, it will take them all in and combine them -
-                      just hold your phone's camera up as they flip through and
-                      it will do the rest for you!
-                    </>
-                  )}
+                  <center>
+                    {" "}
+                    To send your messages from your phone, simply open{" "}
+                    <u>{baseURL}/start</u> from your mobile, hit "Scan from
+                    desktop" and scan the QR code
+                    {qrCodes.length > 1 && <>s</>} to the right.
+                  </center>
+
                 </p>
                 {hosting && (
                   <>
@@ -338,22 +325,22 @@ const GenerateMobileData = ({
                     <div>
                       <Grid
                         container
-                        spacing={2}
                         style={{
-                          width: "80%",
-                          margin: "0 auto",
+                          padding: "0 20px",
+                          //minWidth: "250px",
+                          margin: "10px auto",
                           position: "relative",
                           zIndex: "2",
                         }}
-                        justifyContent={"center"}
+                        justifyContent={"space-around"}
                         alignItems={"center"}
                       >
-                        <Grid size={{ xs: 6 }}>
-                          <h4 style={{ textAlign: "left" }}>
+                        <Grid size={{ xs: 8, lg: 6 }}>
+                          <h4 style={{ textAlign: "left", margin: "0" }}>
                             How many people are you splitting between?
                           </h4>
                         </Grid>{" "}
-                        <Grid>
+                        <Grid size={{ xs: 4, lg: 6 }}>
                           <TextField
                             type="number"
                             value={numBatches}
@@ -363,7 +350,7 @@ const GenerateMobileData = ({
                               )
                             }
                             sx={{
-                              width: "120px",
+                              width: { sm: "60px", lg: "120px" },
                               marginRight: "10px",
                               position: "relative",
                               zIndex: "2",
@@ -374,49 +361,23 @@ const GenerateMobileData = ({
                       {numBatches > 1 && (
                         <div>
                           <p style={{ textAlign: "left", padding: "0 20px" }}>
-                            Once each person has scanned, you can use these
-                            buttons to generate the QR codes for the next user.
+                            Once each person has scanned, you can use the
+                            buttons to to the right generate the QR codes for
+                            the next user.
                           </p>
-
-                          <Button
-                            variant="contained"
-                            sx={{
-                              ...BtnStyleSmall,
-                              position: "relative",
-                              zIndex: "2",
-                              marginRight: "5px",
-                            }}
-                            onClick={prevBatch}
-                            disabled={currentBatchIndex === 0}
-                          >
-                            Previous
-                          </Button>
-
-                          <Button
-                            variant="contained"
-                            sx={{
-                              ...BtnStyleSmall,
-                              position: "relative",
-                              zIndex: "2",
-                              marginLeft: "5px",
-                            }}
-                            onClick={nextBatch}
-                            disabled={
-                              currentBatchIndex === batchQrData.length - 1
-                            }
-                          >
-                            Next
-                          </Button>
-                          <br />
-                          <br />
                         </div>
                       )}
                     </div>
                   </>
                 )}
+
+                <img
+                  src={illustration}
+                  style={{ width: "90%", margin: "0 auto" }}
+                />
               </Grid>
               <Grid
-                size={{ xs: 6 }}
+                size={{ xs: 8, lg: 6 }}
                 style={{
                   height: "100%",
                   display: "flex",
@@ -426,17 +387,55 @@ const GenerateMobileData = ({
                 justifyContent={"space-between"}
               >
                 {hosting && numBatches > 1 && (
-                  <h3
+                  <div
                     style={{
-                      margin: 0,
-                      display: "block",
-                      position: "relative",
-                      zIndex: "2",
-                      marginBottom: "5px",
+                      display: "flex",
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      width: "80%",
+                      margin: "0 auto",
                     }}
                   >
-                    User {currentBatchIndex + 1}
-                  </h3>
+                    <Button
+                      variant="contained"
+                      sx={{
+                        ...BtnStyleSmall,
+                        position: "relative",
+                        zIndex: "2",
+                        marginRight: "5px",
+                      }}
+                      onClick={prevBatch}
+                      disabled={currentBatchIndex === 0}
+                    >
+                      Previous
+                    </Button>
+
+                    <h3
+                      style={{
+                        margin: 0,
+                        display: "block",
+                        position: "relative",
+                        zIndex: "2",
+                        marginBottom: "5px",
+                      }}
+                    >
+                      User {currentBatchIndex + 1}
+                    </h3>
+                    <Button
+                      variant="contained"
+                      sx={{
+                        ...BtnStyleSmall,
+                        position: "relative",
+                        zIndex: "2",
+                        marginLeft: "5px",
+                      }}
+                      onClick={nextBatch}
+                      disabled={currentBatchIndex === batchQrData.length - 1}
+                    >
+                      Next
+                    </Button>
+                  </div>
                 )}
 
                 <div>
@@ -461,13 +460,16 @@ const GenerateMobileData = ({
                     QR Code {currentQrIndex + 1} of {qrCodes.length}
                   </span>
                 </div>
-
                 <Button
                   variant="contained"
-                  sx={{ ...BtnStyleSmall, width: "auto", margin: "0 auto" }}
+                  sx={{
+                    ...BtnStyleSmall,
+                    width: "auto",
+                    margin: "10px auto 0 auto",
+                  }}
                   onClick={() => setRotateSpeed(rotateSpeed + 200)}
                 >
-                  Slow down rotation speed
+                  Slow speed
                 </Button>
               </Grid>
             </Grid>
