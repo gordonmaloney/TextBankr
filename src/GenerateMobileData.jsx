@@ -22,6 +22,8 @@ const GenerateMobileData = ({
   const [currentBatchIndex, setCurrentBatchIndex] = useState(0);
   const [batchQrData, setBatchQrData] = useState([]); // Stores QR codes per batch
 
+  const [Zoom, setZoom] = useState(false);
+
   const [hosting, setHosting] = useState(false);
 
   const [rotateSpeed, setRotateSpeed] = useState(1000);
@@ -154,13 +156,24 @@ const GenerateMobileData = ({
   }, [numBatches]);
 
   useEffect(() => {
-    if (qrCodes.length > 0) {
-      const interval = setInterval(() => {
-        setCurrentQrIndex((prevIndex) => (prevIndex + 1) % qrCodes.length);
-      }, rotateSpeed);
-      return () => clearInterval(interval);
+    if (!Zoom) {
+      if (qrCodes.length > 0) {
+        const interval = setInterval(() => {
+          setCurrentQrIndex((prevIndex) => (prevIndex + 1) % qrCodes.length);
+        }, rotateSpeed);
+        return () => clearInterval(interval);
+      }
     }
-  }, [qrCodes, rotateSpeed]);
+  }, [Zoom, qrCodes, rotateSpeed]);
+
+  const nextQRCode = () => {
+    setCurrentQrIndex((prevIndex) => (prevIndex + 1) % qrCodes.length);
+  };
+  const prevQRCode = () => {
+    setCurrentQrIndex(
+      (prevIndex) => (prevIndex - 1 + qrCodes.length) % qrCodes.length
+    );
+  };
 
   const nextBatch = () => {
     if (currentBatchIndex < batchQrData.length - 1) {
@@ -197,12 +210,17 @@ const GenerateMobileData = ({
   const closeModal = () => {
     setIsModalOpen(false);
     setHosting(false);
+    setZoom(false);
   };
 
   const openHostModal = () => {
     setHosting(true);
     generateMobileData();
     setIsModalOpen(true);
+  };
+
+  const handleRemote = () => {
+    setZoom(true);
   };
 
   return (
@@ -254,6 +272,7 @@ const GenerateMobileData = ({
               textAlign: "center",
               width: "90%",
               maxWidth: "1000px",
+              height: Zoom && "95%",
             }}
           >
             <Grid
@@ -261,14 +280,15 @@ const GenerateMobileData = ({
               spacing={2}
               alignItems="center"
               justifyContent="center"
-              sx={{ 
-                height: hosting && numBatches > 1 ? "600px" : "550px" }}
+              sx={{
+                height: hosting && numBatches > 1 ? "600px" : "550px",
+              }}
             >
               <Grid
                 size={{ xs: 4, lg: 6 }}
                 style={{
                   height: "100%",
-                  display: "flex",
+                  display: Zoom ? "none" : "flex",
                   flexDirection: "column",
                   flexGrow: 1,
                 }}
@@ -301,7 +321,6 @@ const GenerateMobileData = ({
                     desktop" and scan the QR code
                     {qrCodes.length > 1 && <>s</>} to the right.
                   </center>
-
                 </p>
                 {hosting && (
                   <>
@@ -322,6 +341,7 @@ const GenerateMobileData = ({
                       get a set of QR codes with the template message(s) and
                       their portion of the contacts.
                     </p>
+
                     <div>
                       <Grid
                         container
@@ -393,7 +413,7 @@ const GenerateMobileData = ({
                       flexDirection: "row",
                       justifyContent: "space-between",
                       alignItems: "center",
-                      width: "80%",
+                      width: Zoom ? "30%" : "80%",
                       margin: "0 auto",
                     }}
                   >
@@ -443,34 +463,111 @@ const GenerateMobileData = ({
                     src={qrCodes[currentQrIndex]}
                     alt="QR Code"
                     style={{
-                      maxWidth: "500px",
-                      height: "auto",
+                      maxWidth: Zoom ? "100%" : "500px",
+                      width: "80%",
+                      //height: "auto",
                       position: "relative",
                       zIndex: 1,
-                      margin: "-10px",
+                      margin: "-10px auto",
                     }}
                   />
-                  <span
+
+                  {!Zoom && (
+                    <span
+                      style={{
+                        display: "block",
+                        position: "relative",
+                        zIndex: 5,
+                      }}
+                    >
+                      QR Code {currentQrIndex + 1} of {qrCodes.length}
+                    </span>
+                  )}
+                </div>
+
+                {Zoom && (
+                  <div
                     style={{
-                      display: "block",
-                      position: "relative",
-                      zIndex: 5,
+                      display: "flex",
+                      flexDirection: "row",
+                      width: "30%",
+                      margin: "0 auto",
+                      justifyContent: "space-around",
+                      alignItems: "center",
                     }}
                   >
-                    QR Code {currentQrIndex + 1} of {qrCodes.length}
-                  </span>
-                </div>
-                <Button
-                  variant="contained"
-                  sx={{
-                    ...BtnStyleSmall,
-                    width: "auto",
-                    margin: "10px auto 0 auto",
-                  }}
-                  onClick={() => setRotateSpeed(rotateSpeed + 200)}
-                >
-                  Slow speed
-                </Button>
+                    <Button
+                      variant="contained"
+                      sx={{
+                        ...BtnStyleSmall,
+                        width: "auto",
+                        margin: "10px auto 0 auto",
+                      }}
+                      onClick={() => prevQRCode()}
+                    >
+                      Prev
+                    </Button>
+
+                    <span
+                      style={{
+                        display: "block",
+                        position: "relative",
+                        zIndex: 5,
+                      }}
+                    >
+                      QR Code {currentQrIndex + 1} of {qrCodes.length}
+                    </span>
+                    <Button
+                      variant="contained"
+                      sx={{
+                        ...BtnStyleSmall,
+                        width: "auto",
+                        margin: "10px auto 0 auto",
+                      }}
+                      onClick={() => nextQRCode()}
+                    >
+                      Next
+                    </Button>
+                  </div>
+                )}
+
+                {!Zoom && (
+                  <div
+                    style={{
+                      width: "80%",
+                      display: "flex",
+                      flexDirection: "row",
+                      alignItems: "space-around",
+                      margin: "0 auto",
+                    }}
+                  >
+                    <Button
+                      variant="contained"
+                      sx={{
+                        ...BtnStyleSmall,
+                        width: "auto",
+                        margin: "10px auto 0 auto",
+                      }}
+                      onClick={() => setRotateSpeed(rotateSpeed + 200)}
+                    >
+                      Slow speed
+                    </Button>
+
+                    {hosting && !Zoom && (
+                      <Button
+                        variant="contained"
+                        sx={{
+                          ...BtnStyleSmall,
+                          width: "auto",
+                          margin: "10px auto 0 auto",
+                        }}
+                        onClick={() => handleRemote()}
+                      >
+                        Remote
+                      </Button>
+                    )}
+                  </div>
+                )}
               </Grid>
             </Grid>
           </div>
