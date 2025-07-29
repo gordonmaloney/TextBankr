@@ -1,10 +1,19 @@
 import React, { useState, useEffect } from "react";
 import QRCode from "qrcode";
 import { Button, TextField } from "@mui/material";
-import { BtnStyleSmall } from "./MUIShared";
+import { BtnStyle, BtnStyleSmall } from "./MUIShared";
 import Grid from "@mui/material/Grid2";
 import CloseIcon from "@mui/icons-material/Close";
 import illustration from "./imgs/illustration.png";
+
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  DialogContentText,
+} from "@mui/material";
+
 
 const GenerateMobileData = ({
   Translation,
@@ -219,7 +228,11 @@ const GenerateMobileData = ({
     setIsModalOpen(true);
   };
 
+
+
+  const [zoomDialogue, setZoomDialogue] = useState(false)
   const handleRemote = () => {
+    setZoomDialogue(true)
     setZoom(true);
   };
 
@@ -246,6 +259,29 @@ const GenerateMobileData = ({
           </Button>
         </>
       )}
+
+      <Dialog
+        open={zoomDialogue}
+        onClose={() => setZoomDialogue(false)}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          Remote mode
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            This is an experimental feature - hope it works!<br/><br/>
+
+            If you are hosting a <em>remote</em> session, such as over Zoom, you can use this version which is optimised for screen sharing. You, the host, will have to manually navigate from one QR code to the next, <em>and</em> from user to user.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button
+          sx={BtnStyle}
+          onClick={() => setZoomDialogue(false)}>Gotcha</Button>
+        </DialogActions>
+      </Dialog>
 
       {isModalOpen && (
         <div
