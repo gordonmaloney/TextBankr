@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import QRCode from "qrcode";
-import { Button, TextField } from "@mui/material";
+import { Button, TextField, Snackbar, Alert } from "@mui/material";
 import { BtnStyle, BtnStyleSmall } from "./MUIShared";
 import Grid from "@mui/material/Grid2";
 import CloseIcon from "@mui/icons-material/Close";
@@ -14,10 +14,24 @@ import {
   DialogContentText,
 } from "@mui/material";
 
+// ---- helpers for UTF-8 safe base64 ----
+const toBase64 = (obj) => {
+  const json = typeof obj === "string" ? obj : JSON.stringify(obj);
+  return btoa(unescape(encodeURIComponent(json)));
+};
+
+const fromBase64 = (b64) => {
+  try {
+    return JSON.parse(decodeURIComponent(escape(atob(b64))));
+  } catch (e) {
+    return null;
+  }
+};
+
+const MAKE_BUNDLE = (chunks) => `TX1:${toBase64({ v: 1, chunks })}`; // transfer code v1
 
 const GenerateMobileData = ({
   Translation,
-
   rowData,
   isMobile,
   followUpMessage,
@@ -30,12 +44,13 @@ const GenerateMobileData = ({
   const [numBatches, setNumBatches] = useState(1);
   const [currentBatchIndex, setCurrentBatchIndex] = useState(0);
   const [batchQrData, setBatchQrData] = useState([]); // Stores QR codes per batch
+  const [batchBundles, setBatchBundles] = useState([]); // Stores Transfer Codes per batch
 
   const [Zoom, setZoom] = useState(false);
-
   const [hosting, setHosting] = useState(false);
-
   const [rotateSpeed, setRotateSpeed] = useState(1000);
+
+  const [copiedOpen, setCopiedOpen] = useState(false);
 
   const generateMobileData = async () => {
     if (numBatches < 1) return;
@@ -52,7 +67,8 @@ const GenerateMobileData = ({
       rowData.slice(i * batchSize, (i + 1) * batchSize)
     );
 
-    const batchQrCodes = [];
+    const allBatchQrCodes = [];
+    const allBatchBundles = [];
 
     for (const batch of batches) {
       const dataChunks = [];
@@ -69,32 +85,27 @@ const GenerateMobileData = ({
           const nextSize = new Blob([JSON.stringify(nextPart)]).size;
 
           if (currentSize + nextSize > maxChunkSize) {
-            // Save the current chunk if it exceeds maxChunkSize
             dataChunks.push({
               key,
               partIndex: dataChunks.length + 1,
-              totalParts: 0, // Placeholder
+              totalParts: 0,
               data: currentMessageChunk,
               extensionCode,
             });
-
-            // Start a new chunk
             currentMessageChunk = "";
             currentSize = 0;
           }
 
-          // Add the part to the current chunk
           currentMessageChunk += nextPart;
           currentSize += nextSize;
           messageIndex++;
         }
 
-        // Save the last chunk if it has any data
         if (currentMessageChunk.length > 0) {
           dataChunks.push({
             key,
             partIndex: dataChunks.length + 1,
-            totalParts: 0, // Placeholder
+            totalParts: 0,
             data: currentMessageChunk,
             extensionCode,
           });
@@ -103,12 +114,15 @@ const GenerateMobileData = ({
 
       // Step 2: Add contacts to chunks
       const estimatedContactSize = JSON.stringify(batch[0] || {}).length + 50;
-      const contactsPerChunk = Math.floor(maxChunkSize / estimatedContactSize);
+      const contactsPerChunk = Math.max(
+        1,
+        Math.floor(maxChunkSize / estimatedContactSize)
+      );
 
       for (let i = 0; i < batch.length; i += contactsPerChunk) {
         const chunk = {
           partIndex: dataChunks.length + 1,
-          totalParts: 0, // Placeholder
+          totalParts: 0,
           data: batch.slice(i, i + contactsPerChunk),
           extensionCode,
         };
@@ -122,10 +136,13 @@ const GenerateMobileData = ({
         chunk.partIndex = index + 1;
       });
 
+      // Create the bundle code for this batch
+      const bundle = MAKE_BUNDLE(dataChunks);
+      allBatchBundles.push(bundle);
+
       // Step 4: Generate QR codes
       for (const chunk of dataChunks) {
         try {
-          //CHANGE QRCODEURL
           const encodedData = encodeURIComponent(JSON.stringify(chunk));
           const qrCodeUrl = await QRCode.toDataURL(
             `${window.location.origin}/start?data=${encodedData}`,
@@ -134,15 +151,6 @@ const GenerateMobileData = ({
               width: 600,
             }
           );
-
-          /*		
-					//UNCHANGED QRCODEURL THING
-					const qrCodeUrl = await QRCode.toDataURL(JSON.stringify(chunk), {
-						errorCorrectionLevel: "H",
-						width: 600,
-					});
-*/
-
           qrChunks.push(qrCodeUrl);
         } catch (error) {
           console.error("Error generating QR code:", error);
@@ -150,18 +158,18 @@ const GenerateMobileData = ({
         }
       }
 
-      batchQrCodes.push(qrChunks);
+      allBatchQrCodes.push(qrChunks);
     }
 
-    console.log("Batch QR Codes:", batchQrCodes);
-
-    setBatchQrData(batchQrCodes);
+    setBatchQrData(allBatchQrCodes);
+    setBatchBundles(allBatchBundles);
     setCurrentBatchIndex(0);
-    setQrCodes(batchQrCodes[0]);
+    setQrCodes(allBatchQrCodes[0] || []);
   };
 
   useEffect(() => {
     generateMobileData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [numBatches]);
 
   useEffect(() => {
@@ -186,16 +194,18 @@ const GenerateMobileData = ({
 
   const nextBatch = () => {
     if (currentBatchIndex < batchQrData.length - 1) {
-      setCurrentBatchIndex(currentBatchIndex + 1);
-      setQrCodes(batchQrData[currentBatchIndex + 1]);
+      const next = currentBatchIndex + 1;
+      setCurrentBatchIndex(next);
+      setQrCodes(batchQrData[next]);
       setCurrentQrIndex(0);
     }
   };
 
   const prevBatch = () => {
     if (currentBatchIndex > 0) {
-      setCurrentBatchIndex(currentBatchIndex - 1);
-      setQrCodes(batchQrData[currentBatchIndex - 1]);
+      const prev = currentBatchIndex - 1;
+      setCurrentBatchIndex(prev);
+      setQrCodes(batchQrData[prev]);
       setCurrentQrIndex(0);
     }
   };
@@ -228,12 +238,21 @@ const GenerateMobileData = ({
     setIsModalOpen(true);
   };
 
-
-
-  const [zoomDialogue, setZoomDialogue] = useState(false)
+  const [zoomDialogue, setZoomDialogue] = useState(false);
   const handleRemote = () => {
-    setZoomDialogue(true)
+    setZoomDialogue(true);
     setZoom(true);
+  };
+
+  const copyTransferCode = async () => {
+    try {
+      const bundle = batchBundles[currentBatchIndex];
+      if (!bundle) return;
+      await navigator.clipboard.writeText(bundle);
+      setCopiedOpen(true);
+    } catch (e) {
+      console.error("Clipboard copy failed", e);
+    }
   };
 
   return (
@@ -266,20 +285,22 @@ const GenerateMobileData = ({
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">
-          Remote mode
-        </DialogTitle>
+        <DialogTitle id="alert-dialog-title">Remote mode</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            This is an experimental feature - hope it works!<br/><br/>
-
-            If you are hosting a <em>remote</em> session, such as over Zoom, you can use this version which is optimised for screen sharing. You, the host, will have to manually navigate from one QR code to the next, <em>and</em> from user to user.
+            This is an experimental feature - hope it works!
+            <br />
+            <br />
+            If you are hosting a <em>remote</em> session, such as over Zoom, you
+            can use this version which is optimised for screen sharing. You, the
+            host, will have to manually navigate from one QR code to the next,{" "}
+            <em>and</em> from user to user.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button
-          sx={BtnStyle}
-          onClick={() => setZoomDialogue(false)}>Gotcha</Button>
+          <Button sx={BtnStyle} onClick={() => setZoomDialogue(false)}>
+            Gotcha
+          </Button>
         </DialogActions>
       </Dialog>
 
@@ -383,7 +404,6 @@ const GenerateMobileData = ({
                         container
                         style={{
                           padding: "0 20px",
-                          //minWidth: "250px",
                           margin: "10px auto",
                           position: "relative",
                           zIndex: "2",
@@ -497,11 +517,11 @@ const GenerateMobileData = ({
                 <div>
                   <img
                     src={qrCodes[currentQrIndex]}
+                    onClick={copyTransferCode}
                     alt="QR Code"
                     style={{
                       maxWidth: Zoom ? "100%" : "500px",
                       width: "80%",
-                      //height: "auto",
                       position: "relative",
                       zIndex: 1,
                       margin: "-10px auto",
@@ -609,6 +629,17 @@ const GenerateMobileData = ({
           </div>
         </div>
       )}
+
+      <Snackbar
+        open={copiedOpen}
+        autoHideDuration={2000}
+        onClose={() => setCopiedOpen(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert severity="success" variant="filled" sx={{ width: "100%" }}>
+          Transfer code copied to clipboard.
+        </Alert>
+      </Snackbar>
     </>
   );
 };

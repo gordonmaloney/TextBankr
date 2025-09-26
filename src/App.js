@@ -31,26 +31,27 @@ const LanguageWrapper = ({ Component }) => {
 
 const App = () => {
 	return (
-		<Router>
-			<Routes>
-				{/* Default English routes (no language prefix) */}
-				<Route path="/" element={<Home Translation={Translations["en"]} />} />
-				<Route
-					path="/start"
-					element={<TextBankr Translation={Translations["en"]} />}
-				/>
+    <Router>
+      <Routes>
+        {/* Default English routes (no language prefix) */}
+        <Route path="/" element={<Home Translation={Translations["en"]} />} />
+        <Route
+          path="/start"
+          element={<TextBankr Translation={Translations["en"]} />}
+        />
+        <Route
+          path="/paste"
+          element={<TextBankr Translation={Translations["en"]} />}
+        />
 
-			
-				{/* Parent Route for Language Handling */}
-				<Route path="/:lang/*" element={<LanguageRoutes />} />
+        {/* Parent Route for Language Handling */}
+        <Route path="/:lang/*" element={<LanguageRoutes />} />
 
-				{/* Redirect unknown languages to English */}
-				<Route path="*" element={<Navigate to="/" replace />} />
-
-				
-			</Routes>
-		</Router>
-	);
+        {/* Redirect unknown languages to English */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Router>
+  );
 };
 
 // Separate Component for Handling Language-Based Routing
