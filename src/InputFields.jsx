@@ -13,7 +13,7 @@ const InputFields = ({
 	const [secondField, setSecondField] = useState(false);
 
 	useEffect(() => {
-		followUpMessage && setSecondField(true);
+		followUpMessage !== "Hey {FIRSTNAME}! " && setSecondField(true);
 	}, [followUpMessage]);
 
 	return (
@@ -27,8 +27,8 @@ const InputFields = ({
 					different messages depending on whether they pick up.
 					<br />
 					<br />
-					Note: the tool automatically adds {"`Hey {{first_name}}!`"} to the
-					start of the message, so you don’t need to include anything like that!{" "}
+					Note: the tool automatically adds {"`Hey {FIRSTNAME}!`"} to the
+					start of the message, but you can change that if you'd like.{" "}
 					<br />
 					<br />
 					For WhatsApp, you can format parts of your message by wrapping them

@@ -110,10 +110,10 @@ export const BtnBlock = ({
 					{showSignalLinks && !isLandline(number) && (
 						<Button
 							sx={LinkBtn}
-							onClick={() =>
+						onClick={() =>
 								handleSignalClick(
 									number,
-									`Hey ${name.split(" ")[0]}! ${message}`
+									message.replace(/{FIRSTNAME}/gi, name.split(" ")[0])
 								)
 							}
 						>

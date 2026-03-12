@@ -37,7 +37,8 @@ export const generateWhatsAppLink = (name, number, message, extensionCode) => {
 	if (!validatedNumber) return null;
 
 	const firstName = name.split(" ")[0];
-	const encodedMessage = encodeURIComponent(`Hey ${firstName}! ${message}`);
+	const processedMessage = message.replace(/{FIRSTNAME}/gi, firstName);
+	const encodedMessage = encodeURIComponent(processedMessage);
 	return `https://api.whatsapp.com/send?phone=${validatedNumber.replace(
 		"+",
 		""
@@ -49,11 +50,12 @@ export const generateSMSLink = (name, number, message, extensionCode) => {
 	if (!validatedNumber) return null;
 
 	const firstName = name.split(" ")[0];
+	const processedMessage = message.replace(/{FIRSTNAME}/gi, firstName);
 	const formattedNumber = validatedNumber.startsWith("+44")
 		? `0${validatedNumber.slice(3)}`
 		: validatedNumber;
 
-	const encodedMessage = encodeURIComponent(`Hey ${firstName}! ${message}`);
+	const encodedMessage = encodeURIComponent(processedMessage);
 	return `sms:${formattedNumber}?&body=${encodedMessage}`;
 };
 
@@ -76,7 +78,8 @@ export const generateTelegramLink = (
 	if (!validatedNumber) return null;
 
 	const firstName = name.split(" ")[0];
-	const encodedMessage = encodeURIComponent(`Hey ${firstName}! ${message}`);
+	const processedMessage = message.replace(/{FIRSTNAME}/gi, firstName);
+	const encodedMessage = encodeURIComponent(processedMessage);
 
 	// ✅ Keep the "+" for Telegram Web
 	const telegramNumber = validatedNumber; 
