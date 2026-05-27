@@ -37,11 +37,21 @@ const App = () => {
         <Route path="/" element={<Home Translation={Translations["en"]} />} />
         <Route
           path="/start"
-          element={<TextBankr Translation={Translations["en"]} />}
+          element={
+            <TextBankr
+              Translation={Translations["en"]}
+              showAnnouncementModal={true}
+            />
+          }
         />
         <Route
           path="/paste"
-          element={<TextBankr Translation={Translations["en"]} />}
+          element={
+            <TextBankr
+              Translation={Translations["en"]}
+              showAnnouncementModal={false}
+            />
+          }
         />
 
         {/* Parent Route for Language Handling */}
@@ -68,7 +78,12 @@ const LanguageRoutes = () => {
 			<Route path="/" element={<Home Translation={Translations[lang]} />} />
 			<Route
 				path="/start"
-				element={<TextBankr Translation={Translations[lang]} />}
+				element={
+					<TextBankr
+						Translation={Translations[lang]}
+						showAnnouncementModal={true}
+					/>
+				}
 			/>
 		</Routes>
 	);

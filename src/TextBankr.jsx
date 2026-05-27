@@ -12,7 +12,7 @@ import CountrySelect from "./CountrySelect";
 import { BtnStyleSmall } from "./MUIShared";
 import Footer from "./Footer";
 
-const TextBankr = ({ Translation }) => {
+const TextBankr = ({ Translation, showAnnouncementModal = false }) => {
   const [rowData, setRowData] = useState([]);
   const [noAnswerMessage, setNoAnswerMessage] = useState("Hey {FIRSTNAME}! ");
   const [followUpMessage, setFollowUpMessage] = useState("Hey {FIRSTNAME}! ");
@@ -24,6 +24,11 @@ const TextBankr = ({ Translation }) => {
   };
 
   const [isMobile, setIsMobile] = useState(false);
+  const [isAnnouncementOpen, setIsAnnouncementOpen] = useState(
+    Boolean(showAnnouncementModal)
+  );
+
+  const phone = "+447903700751";
 
   // Detect mobile devices
   useEffect(() => {
@@ -117,6 +122,93 @@ const TextBankr = ({ Translation }) => {
   return (
     <div>
       <Header />
+      {isAnnouncementOpen && (
+        <div
+          onClick={() => setIsAnnouncementOpen(false)}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            backgroundColor: "rgba(0, 0, 0, 0.8)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 1000,
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              backgroundColor: "#fff",
+              padding: "16px",
+              borderRadius: "10px",
+              textAlign: "center",
+              width: "90%",
+              maxWidth: "700px",
+              boxSizing: "border-box",
+            }}
+          >
+            <h2 style={{ marginBottom: "12px", marginTop: "8px" }}>
+              Textbankr is being replaced
+            </h2>
+            <p style={{ textAlign: "left", padding: "0 10px" }}>
+              Textbankr is being replaced with{" "}
+              <a
+                href="https://reachout.tenantact.org/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Reachout
+              </a>
+              . It has all the same features as Textbankr, plus more, and it is
+              still free to use.
+              <br />
+              <br />
+              You can keep using Textbankr if you prefer, but it will no longer
+              be maintained
+              <br />
+              <br />
+              If you have feedback on either Textbankr or Reachout, I'd love to
+              hear it - please drop me a message!
+            </p>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                gap: "10px",
+                flexWrap: "wrap",
+                marginTop: "10px",
+                marginBottom: "12px",
+              }}
+            >
+              <a
+                href={`https://wa.me/${phone.replace("+", "")}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ textDecoration: "none" }}
+              >
+                <Button style={BtnStyleSmall}>Feedback over WhatsApp</Button>
+              </a>
+              <Button
+                style={BtnStyleSmall}
+                onClick={() => setIsAnnouncementOpen(false)}
+              >
+                Continue to Textbankr
+              </Button>
+              <a
+                href="https://reachout.tenantact.org/"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ textDecoration: "none" }}
+              >
+                <Button style={BtnStyleSmall}>Try Reachout</Button>
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
       <div style={{ padding: "20px" }}>
         <Scanning
           Translation={Translation}
